@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factory Feasibility Study Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --bg: #0B0E13;
+  --bg-card: #131821;
+  --bg-input: #0D1117;
+  --bg-hover: #1E2A3A;
+  --border: #1E2A3A;
+  --border-active: #2D3F56;
+  --text: #E8ECF1;
+  --text-secondary: #8B9DB8;
+  --text-muted: #4A5D75;
+  --positive: #00C853;
+  --negative: #FF3D71;
+  --amber: #FFB300;
+  --blue: #2196F3;
+  --teal: #00BCD4;
+  --orange: #FF9800;
+  --purple: #9C27B0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+.container { max-width: 1440px; margin: 0 auto; padding: 20px; }
+header {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 24px;
+}
+header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+header .subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.header-controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+}
+.currency-toggle, .lang-toggle {
+  display: flex; align-items: center; gap: 8px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 8px; padding: 4px;
+}
+.currency-toggle button, .lang-toggle button {
+  padding: 6px 14px; border: none; background: transparent; color: var(--text-secondary);
+  font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; font-family: inherit;
+}
+.currency-toggle button.active, .lang-toggle button.active { background: var(--blue); color: #fff; }
+.rate-input {
+  display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary);
+}
+.rate-input input {
+  width: 60px; padding: 5px 8px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: center;
+}
+.rate-input input:focus { outline: none; border-color: var(--blue); }
+
+/* Cards */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
+}
+.card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.card-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+
+/* KPI cards */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.kpi-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+  transition: border-color 0.2s;
+}
+.kpi-card:hover { border-color: var(--border-active); }
+.kpi-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.kpi-value { font-size: 18px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.kpi-value.positive { color: var(--positive); }
+.kpi-value.negative { color: var(--negative); }
+.kpi-value.amber { color: var(--amber); }
+.kpi-value.blue { color: var(--blue); }
+
+/* Inputs */
+input[type="number"], input[type="text"] {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  width: 100%;
+}
+input[type="number"]:focus, input[type="text"]:focus { outline: none; border-color: var(--blue); }
+input.red-input { border-color: var(--negative); color: var(--negative); }
+input.red-input:focus { border-color: var(--negative); }
+input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+label { font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+.form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.form-group { flex: 1; min-width: 140px; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+table {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+}
+th {
+  background: var(--bg-hover); color: var(--text-secondary); font-weight: 600;
+  text-align: left; padding: 8px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+td { padding: 6px 10px; border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap; }
+tr:hover td { background: rgba(30,42,58,0.5); }
+tr.red-row td { background: rgba(255,61,113,0.06); }
+tr.red-row:hover td { background: rgba(255,61,113,0.12); }
+tr.catalogue td { color: var(--text-muted); }
+tr.total-row { font-weight: 700; background: var(--bg-hover); }
+tr.total-row td { border-top: 2px solid var(--border-active); color: var(--text); }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab {
+  padding: 8px 16px; border: none; background: transparent; color: var(--text-secondary);
+  font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 8px;
+  font-family: inherit; border: 1px solid transparent;
+}
+.tab:hover { color: var(--text); background: var(--bg-hover); }
+.tab.active { background: rgba(33,150,243,0.15); color: var(--blue); border-color: rgba(33,150,243,0.3); }
+
+/* Sliders */
+.slider-group { margin: 12px 0; }
+.slider-group label { display: flex; justify-content: space-between; align-items: center; }
+.slider-group input[type="range"] {
+  width: 100%; margin-top: 8px; accent-color: var(--blue);
+}
+.slider-presets { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.preset-btn {
+  padding: 4px 10px; border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text-secondary); font-size: 11px; border-radius: 6px; cursor: pointer; font-family: inherit;
+}
+.preset-btn:hover { border-color: var(--border-active); color: var(--text); }
+
+/* Toggle switch */
+.toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.toggle-switch {
+  width: 36px; height: 20px; background: var(--border-active); border-radius: 10px;
+  position: relative; transition: background 0.2s;
+}
+.toggle-switch::after {
+  content: ''; position: absolute; width: 16px; height: 16px; background: #fff;
+  border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s;
+}
+.toggle.on .toggle-switch { background: var(--blue); }
+.toggle.on .toggle-switch::after { transform: translateX(16px); }
+.toggle-label { font-size: 11px; color: var(--text-secondary); }
+
+/* Buttons */
+.btn {
+  padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text); font-size: 12px; font-weight: 600; border-radius: 8px;
+  cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.15s;
+}
+.btn:hover { border-color: var(--border-active); background: var(--bg-hover); }
+.btn-primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn-primary:hover { background: #1a7fd1; }
+.btn-success { background: var(--positive); border-color: var(--positive); color: #fff; }
+.btn-success:hover { background: #00a344; }
+.btn-danger { background: var(--negative); border-color: var(--negative); color: #fff; }
+.btn-danger:hover { background: #e0355f; }
+
+/* Verdict */
+.verdict {
+  padding: 14px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+}
+.verdict.yes { background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.3); color: var(--positive); }
+.verdict.no { background: rgba(255,61,113,0.1); border: 1px solid rgba(255,61,113,0.3); color: var(--negative); }
+.verdict.maybe { background: rgba(255,179,0,0.1); border: 1px solid rgba(255,179,0,0.3); color: var(--amber); }
+
+/* Section */
+.section { margin-bottom: 24px; }
+.section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.section-title .badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 6px; background: var(--bg-hover);
+  color: var(--text-secondary); font-weight: 600;
+}
+
+/* Tags */
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;
+}
+.tag-produced { background: rgba(0,200,83,0.12); color: var(--positive); }
+.tag-catalogue { background: rgba(74,93,117,0.2); color: var(--text-muted); }
+.tag-missing { background: rgba(255,61,113,0.12); color: var(--negative); }
+
+/* Progress bar */
+.progress-bar { height: 6px; background: var(--bg-input); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.progress-fill.green { background: var(--positive); }
+.progress-fill.red { background: var(--negative); }
+.progress-fill.amber { background: var(--amber); }
+
+/* Summary cards for product groups */
+.group-summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.group-summary {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+  transition: border-color 0.2s;
+}
+.group-summary:hover { border-color: var(--border-active); }
+.group-summary-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.group-summary-stat { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+.group-summary-stat .label { color: var(--text-muted); }
+.group-summary-stat .value { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+/* Tooltip */
+.tooltip { position: relative; }
+.tooltip:hover::after {
+  content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--bg-hover); color: var(--text); padding: 4px 8px; border-radius: 6px;
+  font-size: 10px; white-space: nowrap; border: 1px solid var(--border); z-index: 100;
+}
+
+/* Print */
+@media print {
+  body { background: #fff; color: #000; }
+  .card { border: 1px solid #ccc; page-break-inside: avoid; }
+  header, .no-print { display: none !important; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  header { flex-direction: column; align-items: flex-start; }
+  .container { padding: 12px; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.3s ease-out; }
+
+/* Salary model tabs specific */
+.model-content { animation: fadeIn 0.2s ease-out; }
+.employee-row {
+  display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 8px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--border);
+}
+.employee-row.header { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.employee-row:hover { background: rgba(30,42,58,0.3); }
+.employee-name { font-weight: 600; font-size: 12px; }
+.employee-position { font-size: 11px; color: var(--text-muted); }
+
+/* Chart containers */
+.chart-container { position: relative; height: 200px; }
+.chart-container-lg { position: relative; height: 280px; }
+
+/* Editable cell */
+.editable-cell input { width: 80px; text-align: right; padding: 4px 6px; }
+
+/* Status indicators */
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.status-dot.green { background: var(--positive); }
+.status-dot.red { background: var(--negative); }
+.status-dot.amber { background: var(--amber); }
+
+/* Select styling */
+select {
+  padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-size: 12px; font-family: inherit;
+}
+select:focus { outline: none; border-color: var(--blue); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div>
+        <h1>{{ t('title') }}</h1>
+        <div class="subtitle">{{ t('subtitle') }}</div>
+      </div>
+      <div class="header-controls">
+        <div class="lang-toggle">
+          <button :class="{active: lang==='en'}" @click="lang='en'">EN</button>
+          <button :class="{active: lang==='cn'}" @click="lang='cn'">CN</button>
+        </div>
+        <div class="currency-toggle">
+          <button :class="{active: currency==='CNY'}" @click="currency='CNY'">CNY</button>
+          <button :class="{active: currency==='USD'}" @click="currency='USD'">USD</button>
+        </div>
+        <div class="rate-input">
+          <span>{{ t('rate') }}:</span>
+          <input type="number" v-model.number="exchangeRate" step="0.1" min="1">
+          <span>CNY/USD</span>
+        </div>
+        <div class="rate-input">
+          <span>{{ t('workHrsDay') }}:</span>
+          <input type="number" v-model.number="workHoursPerDay" step="1" min="1" max="24" style="width:50px">
+        </div>
+        <div class="rate-input">
+          <span>{{ t('workDaysMo') }}:</span>
+          <input type="number" v-model.number="workDaysPerMonth" step="1" min="1" max="31" style="width:50px">
+        </div>
+      </div>
+    </header>
+
+    <!-- KPI Row -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">{{ t('totalInvestment') }}</div>
+        <div class="kpi-value blue">{{ fmt(totalInvestment) }}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">{{ t('monthlyRent') }}</div>
+        <div class="kpi-value">{{ fmt(monthlyRent) }}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">{{ t('monthlyElectric') }}</div>
+        <div class="kpi-value">{{ fmt(monthlyElectric) }}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">{{ t('totalPayroll') }}</div>
+        <div class="kpi-value" :class="payrollColor">{{ fmt(totalPayroll) }}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">{{ t('monthlySales') }}</div>
+        <div class="kpi-value" :class="salesColor">{{ fmt(monthlySales) }}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">{{ t('netProfitMo') }}</div>
+        <div class="kpi-value" :class="netProfit >= 0 ? 'positive' : 'negative'">{{ fmt(netProfit) }}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">{{ t('laborUtilization') }}</div>
+        <div class="kpi-value" :class="utilizationColor">{{ utilizationPct.toFixed(1) }}%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">{{ t('productsWSales') }}</div>
+        <div class="kpi-value">{{ productsWithSales }}/{{ allProducts.length }}</div>
+      </div>
+    </div>
+
+    <!-- MODULE 1: Investment & Allocation -->
+    <div class="section">
+      <div class="section-title">
+        <span style="color:var(--blue)">01</span> {{ t('mod01_title') }}
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">{{ t('investmentAmount') }}</div>
+              <div class="card-subtitle">{{ t('autoOrManual') }}</div>
+            </div>
+            <label class="toggle" @click="autoInvestment = !autoInvestment">
+              <div class="toggle-switch" :class="{on: autoInvestment}"></div>
+              <span class="toggle-label">{{ t('auto') }}</span>
+            </label>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label>{{ t('totalInvestment') }} (CNY)</label>
+            <input type="number" v-model.number="totalInvestment" :disabled="autoInvestment" style="font-size:16px;padding:10px">
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">
+            <div style="margin-bottom:4px"><strong>{{ t('autoCalcFormula') }}:</strong></div>
+            <div>{{ t('threeMoRent') }} ({{fmt(monthlyRent*3)}}) + {{ t('threeMoElectric') }} ({{fmt(monthlyElectric*3)}})</div>
+            <div>+ {{ t('threeMoSalary') }} ({{fmt(totalPayroll*3)}}) + {{ t('machinery') }} 200k + {{ t('rawMaterials') }} 100k + {{ t('contingency') }} 100k</div>
+            <div style="margin-top:4px;color:var(--text-secondary)">= {{fmt(autoCalcInvestment)}}</div>
+          </div>
+          <div class="chart-container" style="margin-top:12px">
+            <canvas ref="investmentChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">{{ t('budgetAllocation') }}</div>
+              <div class="card-subtitle">{{ t('allocateAcross') }}</div>
+            </div>
+          </div>
+          <div style="max-height:360px;overflow-y:auto">
+            <table>
+              <thead>
+                <tr><th>{{ t('category') }}</th><th>{{ t('amount') }}</th><th>{{ t('auto') }}</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="b in budgets" :key="b.key">
+                  <td>{{ b.name }}</td>
+                  <td>
+                    <input type="number" v-model.number="b.amount" :disabled="b.auto" style="width:110px;text-align:right">
+                  </td>
+                  <td>
+                    <label class="toggle" @click="b.auto = !b.auto" v-if="b.isReserve">
+                      <div class="toggle-switch" :class="{on: b.auto}"></div>
+                    </label>
+                    <span v-else style="font-size:11px;color:var(--text-muted)">{{ t('fixed') }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+              <span style="color:var(--text-muted)">{{ t('allocated') }}</span>
+              <span class="mono" :style="{color: allocated > totalInvestment ? 'var(--negative)' : 'var(--positive)'}">{{ fmt(allocated) }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+              <span style="color:var(--text-muted)">{{ t('available') }}</span>
+              <span class="mono">{{ fmt(totalInvestment) }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700">
+              <span>{{ t('surplusShortfall') }}</span>
+              <span class="mono" :class="surplus >= 0 ? 'positive' : 'negative'">{{ surplus >= 0 ? '+' : '' }}{{ fmt(surplus) }}</span>
+            </div>
+            <div class="progress-bar" style="margin-top:8px">
+              <div class="progress-fill" :class="allocationPct > 100 ? 'red' : allocationPct > 90 ? 'amber' : 'green'" :style="{width: Math.min(allocationPct,100)+'%'}"></div>
+            </div>
+            <div style="margin-top:12px;font-size:11px;color:var(--text-muted)">
+              <strong>{{ t('runway') }}:</strong> {{ runwayMonths.toFixed(1) }} {{ t('monthsZeroSales') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 2: Sales & Production Plan -->
+    <div class="section">
+      <div class="section-title">
+        <span style="color:var(--blue)">02</span> {{ t('mod02_title') }}
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">{{ t('monthlySalesTarget') }}</div>
+            <div class="card-subtitle">{{ t('basedOnSixMo') }}: {{ fmt(totalActualSales) }}</div>
+          </div>
+          <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace" :class="salesColor">{{ fmt(monthlySales) }}</div>
+        </div>
+        <div class="slider-group">
+          <div class="slider-presets">
+            <button class="preset-btn" @click="salesScenario='worst'">{{ t('worst') }} (-35%)</button>
+            <button class="preset-btn" @click="salesScenario='base'">{{ t('base') }}</button>
+            <button class="preset-btn" @click="salesScenario='best'">{{ t('best') }} (+35%)</button>
+          </div>
+          <input type="range" v-model.number="monthlySales" :min="Math.round(totalActualSales/6*0.3)" :max="Math.round(totalActualSales/6*1.8)" step="1000">
+        </div>
+        <div class="form-row" style="margin-top:12px">
+          <div class="form-group">
+            <label>{{ t('scenarioMult') }}</label>
+            <input type="number" v-model.number="salesMultiplier" step="0.05" min="0.3" max="1.8" style="width:100px">
+          </div>
+          <div class="form-group">
+            <label>{{ t('baseMonthlySales') }}</label>
+            <input type="number" v-model.number="baseMonthlySales" step="1000" min="0" style="width:150px">
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">{{ t('productionPlan') }}</div>
+            <div class="card-subtitle">{{ t('qtyPerMonth') }}</div>
+          </div>
+          <div>
+            <span class="tag tag-produced">{{ t('totalQty') }}: {{ formatNumber(totalProductionQty) }}</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('product') }}</th>
+                <th>{{ t('share') }}</th>
+                <th>{{ t('revenue') }} (CNY)</th>
+                <th>{{ t('pricePc') }}</th>
+                <th>{{ t('qtyToProduce') }}</th>
+                <th>{{ t('materialCost') }}</th>
+                <th>{{ t('laborHrs') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-for="g in productGroups" :key="g.name">
+                <tr v-for="p in g.products.filter(x=>x.priceUSD>0)" :key="p.name">
+                  <td style="max-width:250px;white-space:normal;font-size:11px">{{ p.name }}</td>
+                  <td class="mono">{{ (p.salesShare*100).toFixed(1) }}%</td>
+                  <td class="mono">{{ fmt(p.monthlyRevenue) }}</td>
+                  <td class="mono">{{ fmt(p.priceCNY) }}</td>
+                  <td class="mono">{{ formatNumber(p.qtyToProduce) }}</td>
+                  <td class="mono">{{ fmt(p.monthlyMaterialCost) }}</td>
+                  <td class="mono">{{ formatNumber(p.monthlyLaborHours,1) }}</td>
+                </tr>
+              </template>
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="4">{{ t('total') }}</td>
+                <td class="mono">{{ formatNumber(totalProductionQty) }}</td>
+                <td class="mono">{{ fmt(totalMaterialCost) }}</td>
+                <td class="mono">{{ formatNumber(totalLaborHoursNeeded,1) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 3: Products Table -->
+    <div class="section">
+      <div class="section-title">
+        <span style="color:var(--blue)">03</span> {{ t('mod03_title') }} <span class="badge">{{ productsWithSales }} {{ t('priced') }} / {{ allProducts.length }} {{ t('total') }}</span>
+      </div>
+      <!-- Group summaries -->
+      <div class="group-summary-grid">
+        <div class="group-summary" v-for="g in productGroups" :key="g.name">
+          <div class="group-summary-name">{{ g.name }}</div>
+          <div class="group-summary-stat">
+            <span class="label">{{ t('items') }}</span>
+            <span class="value">{{ g.products.length }}</span>
+          </div>
+          <div class="group-summary-stat">
+            <span class="label">{{ t('produced') }}</span>
+            <span class="value" :style="{color: g.producedCount > 0 ? 'var(--positive)' : 'var(--text-muted)'}">{{ g.producedCount }}</span>
+          </div>
+          <div class="group-summary-stat">
+            <span class="label">{{ t('annualSales') }}</span>
+            <span class="value">{{ fmt(g.groupSales) }}</span>
+          </div>
+          <div class="group-summary-stat">
+            <span class="label">{{ t('missingPrices') }}</span>
+            <span class="value" :style="{color: g.missingPrices > 0 ? 'var(--negative)' : 'var(--text-muted)'}">{{ g.missingPrices }}</span>
+          </div>
+        </div>
+      </div>
+      <!-- Product tables per group -->
+      <div v-for="g in productGroups" :key="g.name" class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">{{ g.name }}</div>
+            <div class="card-subtitle">{{ g.producedCount }} {{ t('produced') }} / {{ g.products.length }} {{ t('items') }}</div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>{{ t('productName') }}</th>
+                <th>{{ t('rawCost') }}</th>
+                <th>{{ t('laborHrs') }}</th>
+                <th>{{ t('annualQty') }}</th>
+                <th>{{ t('priceUSD') }}</th>
+                <th>{{ t('priceCNY') }}</th>
+                <th>{{ t('annualRevenue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(p,i) in g.products" :key="p.name" :class="{catalogue: p.qty===0, 'red-row': p.priceUSD===null || p.priceUSD===undefined}">
+                <td style="color:var(--text-muted)">{{ i+1 }}</td>
+                <td style="max-width:280px;white-space:normal;font-size:11px">
+                  {{ p.name }}
+                  <span v-if="p.qty===0" class="tag tag-catalogue" style="margin-left:6px">{{ t('catalogue') }}</span>
+                  <span v-if="p.priceUSD===null" class="tag tag-missing" style="margin-left:6px">{{ t('noPrice') }}</span>
+                </td>
+                <td class="editable-cell">
+                  <input type="number" v-model.number="p.rawCost" step="0.001">
+                </td>
+                <td class="editable-cell">
+                  <input type="number" v-model.number="p.hours" step="0.0001" style="width:70px">
+                </td>
+                <td class="editable-cell">
+                  <input type="number" v-model.number="p.qty" step="1" style="width:60px">
+                </td>
+                <td class="editable-cell">
+                  <input type="number" v-model.number="p.priceUSD" step="0.001" :class="{ 'red-input': p.priceUSD===null || p.priceUSD===undefined }" style="width:70px">
+                </td>
+                <td class="mono">{{ fmt(p.priceCNY) }}</td>
+                <td class="mono" :style="{color: p.annualRevenue > 0 ? 'var(--positive)' : 'var(--text-muted)'}">{{ fmt(p.annualRevenue) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="4">{{ t('groupTotal') }}</td>
+                <td class="mono">{{ formatNumber(g.totalQty) }}</td>
+                <td></td>
+                <td></td>
+                <td class="mono">{{ fmt(g.groupSales) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 4: Labor Capacity -->
+    <div class="section">
+      <div class="section-title">
+        <span style="color:var(--blue)">04</span> {{ t('mod04_title') }}
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">{{ t('workforce') }}</div>
+              <div class="card-subtitle">{{ laborCount }} {{ t('laborers') }} + {{ adminCount }} {{ t('admin') }} = {{ employees.length }} {{ t('total') }}</div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>{{ t('name') }}</th><th>{{ t('position') }}</th><th>{{ t('basicSalary') }}</th><th>{{ t('type') }}</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="e in employees" :key="e.id" :class="e.isLabor ? '' : 'catalogue'">
+                  <td>{{ e.name }}</td>
+                  <td style="font-size:11px">{{ e.position }}</td>
+                  <td class="mono">{{ fmt(e.basicSalary) }}</td>
+                  <td>
+                    <span :class="e.isLabor ? 'tag tag-produced' : 'tag tag-catalogue'">{{ e.isLabor ? t('laborTag') : t('adminTag') }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;font-size:12px">
+            <div><strong>{{ t('monthlyPayroll') }}:</strong> <span class="mono">{{ fmt(totalPayroll) }}</span></div>
+            <div><strong>{{ t('laborCost') }}:</strong> <span class="mono">{{ fmt(laborCost) }}</span></div>
+            <div><strong>{{ t('adminCost') }}:</strong> <span class="mono">{{ fmt(adminCost) }}</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">{{ t('capacityAnalysis') }}</div>
+              <div class="card-subtitle">{{ t('basedOn') }} {{ laborCount }} {{ t('laborers') }} x {{ workHoursPerDay }} {{ t('hrsDay') }} x {{ workDaysPerMonth }} {{ t('days') }}</div>
+            </div>
+          </div>
+          <div class="kpi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px">
+            <div class="kpi-card">
+              <div class="kpi-label">{{ t('availHrsMo') }}</div>
+              <div class="kpi-value blue">{{ formatNumber(availableHours,1) }}</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">{{ t('reqHrsMo') }}</div>
+              <div class="kpi-value" :class="totalLaborHoursNeeded > availableHours ? 'negative' : 'positive'">{{ formatNumber(totalLaborHoursNeeded,1) }}</div>
+            </div>
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px">
+              <span>{{ t('utilization') }}</span>
+              <span class="mono" :class="utilizationColor">{{ utilizationPct.toFixed(1) }}%</span>
+            </div>
+            <div class="progress-bar" style="height:10px">
+              <div class="progress-fill" :class="utilizationPct > 100 ? 'red' : utilizationPct > 85 ? 'amber' : 'green'" :style="{width: Math.min(utilizationPct,100)+'%'}"></div>
+            </div>
+            <div v-if="utilizationPct > 100" style="margin-top:6px;font-size:11px;color:var(--negative)">
+              {{ t('overtimeReq') }}: {{ formatNumber(totalLaborHoursNeeded - availableHours,1) }} {{ t('hours') }} ({{ (utilizationPct-100).toFixed(1) }}% {{ t('overCapacity') }})
+            </div>
+          </div>
+          <div class="chart-container" style="margin-top:12px">
+            <canvas ref="laborChart"></canvas>
+          </div>
+          <div style="margin-top:12px;font-size:11px;color:var(--text-muted)">
+            <strong>{{ t('capacityCeiling') }}:</strong> {{ t('maxMonthlySales') }} = 
+            <span class="mono" style="color:var(--text)">{{ fmt(capacityCeiling) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 5: Salary Model Lab -->
+    <div class="section">
+      <div class="section-title">
+        <span style="color:var(--blue)">05</span> {{ t('mod05_title') }}
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="tabs">
+          <button :class="['tab', {active: salaryModel==='fixed'}]" @click="salaryModel='fixed'">{{ t('model0Tab') }}</button>
+          <button :class="['tab', {active: salaryModel==='pct'}]" @click="salaryModel='pct'">{{ t('modelATab') }}</button>
+          <button :class="['tab', {active: salaryModel==='uplift'}]" @click="salaryModel='uplift'">{{ t('modelBTab') }}</button>
+          <button :class="['tab', {active: salaryModel==='tiered'}]" @click="salaryModel='tiered'">{{ t('modelCTab') }}</button>
+        </div>
+
+        <!-- Model 0: Fixed -->
+        <div v-if="salaryModel==='fixed'" class="model-content">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+            {{ t('model0Desc') }} <strong>{{ t('laborAlwaysFixed') }}</strong> {{ t('onlyAdminVariable') }}
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>{{ t('employee') }}</th><th>{{ t('type') }}</th><th>{{ t('position') }}</th><th>{{ t('basicSalary') }}</th><th>{{ t('calculatedPay') }}</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="e in employees" :key="e.id">
+                  <td>{{ e.name }}</td>
+                  <td><span :class="e.isLabor ? 'tag tag-produced' : 'tag tag-catalogue'" style="font-size:10px">{{ e.isLabor ? t('laborFixedTag') : t('adminTag') }}</span></td>
+                  <td style="font-size:11px">{{ e.position }}</td>
+                  <td class="mono">{{ fmt(e.basicSalary) }}</td>
+                  <td class="mono" style="color:var(--positive);font-weight:700">{{ fmt(e.basicSalary) }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td colspan="4">{{ t('totalMonthlyPayroll') }}</td>
+                  <td class="mono">{{ fmt(totalPayroll) }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Model A: Basic + % of Sales -->
+        <div v-if="salaryModel==='pct'" class="model-content">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+            <strong>{{ t('laborAlwaysFixed') }}</strong> {{ t('modelADesc') }}
+          </div>
+          <div class="form-row" style="margin-bottom:16px">
+            <div class="form-group">
+              <label>{{ t('poolPctSales') }}</label>
+              <input type="number" v-model.number="modelA.poolPct" step="0.5" min="0" max="50" style="width:100px"> %
+            </div>
+            <div class="form-group">
+              <label>{{ t('distribution') }}</label>
+              <select v-model="modelA.distMethod">
+                <option value="equal">{{ t('equalAdminOnly') }}</option>
+                <option value="basic_weighted">{{ t('weightedByBasic') }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>{{ t('employee') }}</th><th>{{ t('type') }}</th><th>{{ t('position') }}</th><th>{{ t('basic') }}</th><th>{{ t('bonus') }}</th><th>{{ t('total') }}</th><th>{{ t('change') }}</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="e in modelACalculations" :key="e.id" :style="e.isLabor ? 'opacity:0.6' : ''">
+                  <td>{{ e.name }}</td>
+                  <td><span :class="e.isLabor ? 'tag tag-produced' : 'tag tag-catalogue'" style="font-size:10px">{{ e.isLabor ? t('laborFixedTag') : t('adminTag') }}</span></td>
+                  <td style="font-size:11px">{{ e.position }}</td>
+                  <td class="mono">{{ fmt(e.basic) }}</td>
+                  <td class="mono" :style="e.bonus > 0 ? 'color:var(--positive)' : 'color:var(--text-muted)'">{{ e.isLabor ? '-' : '+' + fmt(e.bonus) }}</td>
+                  <td class="mono" style="font-weight:700">{{ fmt(e.total) }}</td>
+                  <td class="mono" :class="e.change > 0 ? 'positive' : ''">{{ e.isLabor ? t('fixed') : (e.change > 0 ? '+' : '') + e.change.toFixed(1) + '%' }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td colspan="3">{{ t('totals') }}</td>
+                  <td class="mono">{{ fmt(totalPayroll) }}</td>
+                  <td class="mono" style="color:var(--positive)">+{{ fmt(modelATotalBonus) }}</td>
+                  <td class="mono">{{ fmt(modelATotalPay) }}</td>
+                  <td class="mono" :class="modelAPayrollPct > 50 ? 'negative' : 'positive'">{{ modelAPayrollPct.toFixed(1) }}% {{ t('ofSales') }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Model B: Uplift -->
+        <div v-if="salaryModel==='uplift'" class="model-content">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+            <strong>{{ t('laborAlwaysFixed') }}</strong> {{ t('modelBDesc') }}
+          </div>
+          <div class="form-row" style="margin-bottom:16px">
+            <div class="form-group">
+              <label>{{ t('upliftPct') }}</label>
+              <input type="number" v-model.number="modelB.upliftPct" step="1" min="-50" max="200" style="width:100px"> %
+            </div>
+            <div class="form-group">
+              <label>{{ t('applyTo') }}</label>
+              <select v-model="modelB.applyTo">
+                <option value="admin">{{ t('adminOnlyLaborFixed') }}</option>
+                <option value="all">{{ t('allIncludingLabor') }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>{{ t('employee') }}</th><th>{{ t('type') }}</th><th>{{ t('position') }}</th><th>{{ t('before') }}</th><th>{{ t('after') }}</th><th>{{ t('change') }}</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="e in modelBCalculations" :key="e.id" :style="e.isLabor ? 'opacity:0.6' : ''">
+                  <td>{{ e.name }}</td>
+                  <td><span :class="e.isLabor ? 'tag tag-produced' : 'tag tag-catalogue'" style="font-size:10px">{{ e.isLabor ? t('laborFixedTag') : t('adminTag') }}</span></td>
+                  <td style="font-size:11px">{{ e.position }}</td>
+                  <td class="mono">{{ fmt(e.before) }}</td>
+                  <td class="mono" style="font-weight:700;color:var(--blue)">{{ fmt(e.after) }}</td>
+                  <td class="mono" :class="e.changeAmt > 0 ? 'positive' : ''">{{ e.isLabor ? t('fixed') : '+' + fmt(e.changeAmt) + ' (' + e.changePct.toFixed(1) + '%)' }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td colspan="3">{{ t('totals') }}</td>
+                  <td class="mono">{{ fmt(totalPayroll) }}</td>
+                  <td class="mono">{{ fmt(modelBTotalPay) }}</td>
+                  <td class="mono" :class="modelBTotalChange > 0 ? 'positive' : ''">+{{ fmt(modelBTotalChange) }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Model C: Tiered -->
+        <div v-if="salaryModel==='tiered'" class="model-content">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+            <strong>{{ t('laborAlwaysFixed') }}</strong> {{ t('modelCDesc') }}
+          </div>
+          <div class="form-row" style="margin-bottom:16px">
+            <div class="form-group" v-for="(t,i) in modelC.tiers" :key="i" style="min-width:180px">
+              <label>{{ t('tier') }} {{ i+1 }}: {{ t('salesGTE') }} {{ fmt(t.threshold) }}</label>
+              <div style="display:flex;gap:8px">
+                <input type="number" v-model.number="t.threshold" :placeholder="t('threshold')" style="width:100px">
+                <input type="number" v-model.number="t.upliftPct" :placeholder="t('upliftPct')" style="width:60px">
+                <span style="font-size:12px;color:var(--text-muted);padding-top:6px">%</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-bottom:12px;padding:8px 12px;background:var(--bg-hover);border-radius:8px;font-size:12px">
+            <strong>{{ t('currentTier') }}:</strong> 
+            <span :style="{color: activeTier ? 'var(--positive)' : 'var(--text-muted)'}">
+              {{ activeTier ? t('tier') + ' ' + (activeTier.index + 1) + ' (+' + activeTier.upliftPct + '%)' : t('noTierReached') }}
+            </span>
+            <span style="color:var(--text-muted);margin-left:8px">({{ t('monthlySales') }}: {{ fmt(monthlySales) }})</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>{{ t('employee') }}</th><th>{{ t('type') }}</th><th>{{ t('position') }}</th><th>{{ t('basic') }}</th><th>{{ t('tierBonus') }}</th><th>{{ t('total') }}</th><th>{{ t('change') }}</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="e in modelCCalculations" :key="e.id" :style="e.isLabor ? 'opacity:0.6' : ''">
+                  <td>{{ e.name }}</td>
+                  <td><span :class="e.isLabor ? 'tag tag-produced' : 'tag tag-catalogue'" style="font-size:10px">{{ e.isLabor ? t('laborFixedTag') : t('adminTag') }}</span></td>
+                  <td style="font-size:11px">{{ e.position }}</td>
+                  <td class="mono">{{ fmt(e.basic) }}</td>
+                  <td class="mono" :style="e.bonus > 0 ? 'color:var(--positive)' : 'color:var(--text-muted)'">{{ e.isLabor ? '-' : '+' + fmt(e.bonus) }}</td>
+                  <td class="mono" style="font-weight:700">{{ fmt(e.total) }}</td>
+                  <td class="mono" :class="e.change > 0 ? 'positive' : ''">{{ e.isLabor ? t('fixed') : (e.change > 0 ? '+' : '') + e.change.toFixed(1) + '%' }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td colspan="3">{{ t('totals') }}</td>
+                  <td class="mono">{{ fmt(totalPayroll) }}</td>
+                  <td class="mono" style="color:var(--positive)">+{{ fmt(modelCTotalBonus) }}</td>
+                  <td class="mono">{{ fmt(modelCTotalPay) }}</td>
+                  <td class="mono">{{ modelCPayrollPct.toFixed(1) }}% {{ t('ofSales') }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Comparison Summary -->
+        <div style="margin-top:20px;padding-top:16px;border-top:2px solid var(--border)">
+          <div class="card-title" style="margin-bottom:12px">{{ t('modelComparison') }}</div>
+          <div class="grid-4">
+            <div class="kpi-card">
+              <div class="kpi-label">{{ t('model0Label') }}</div>
+              <div class="kpi-value">{{ fmt(totalPayroll) }}</div>
+              <div class="kpi-label" style="margin-top:4px">{{ (totalPayroll/monthlySales*100).toFixed(1) }}% {{ t('ofSales') }}</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">{{ t('modelALabel') }}</div>
+              <div class="kpi-value" :class="modelAPayrollPct > 50 ? 'negative' : 'blue'">{{ fmt(modelATotalPay) }}</div>
+              <div class="kpi-label" style="margin-top:4px">{{ modelAPayrollPct.toFixed(1) }}% {{ t('ofSales') }}</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">{{ t('modelBLabel') }}</div>
+              <div class="kpi-value" :class="(modelBTotalPay/monthlySales*100) > 50 ? 'negative' : 'blue'">{{ fmt(modelBTotalPay) }}</div>
+              <div class="kpi-label" style="margin-top:4px">{{ (modelBTotalPay/monthlySales*100).toFixed(1) }}% {{ t('ofSales') }}</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">{{ t('modelCLabel') }}</div>
+              <div class="kpi-value" :class="modelCPayrollPct > 50 ? 'negative' : 'blue'">{{ fmt(modelCTotalPay) }}</div>
+              <div class="kpi-label" style="margin-top:4px">{{ modelCPayrollPct.toFixed(1) }}% {{ t('ofSales') }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 6: Decision + Export/Import -->
+    <div class="section">
+      <div class="section-title">
+        <span style="color:var(--blue)">06</span> {{ t('mod06_title') }}
+      </div>
+      <div class="grid-3">
+        <div class="card" style="text-align:center">
+          <div class="card-title" style="margin-bottom:16px">{{ t('profitableToOperate') }}</div>
+          <div :class="['verdict', netProfit > 0 ? 'yes' : netProfit > -50000 ? 'maybe' : 'no']" style="justify-content:center">
+            <span class="status-dot" :class="netProfit > 0 ? 'green' : netProfit > -50000 ? 'amber' : 'red'"></span>
+            {{ netProfit > 0 ? t('verdictYes') : netProfit > -50000 ? t('verdictMaybe') : t('verdictNo') }}
+          </div>
+          <div style="margin-top:16px;font-size:12px;color:var(--text-secondary)">
+            {{ t('netProfit') }}: <span class="mono" :class="netProfit >= 0 ? 'positive' : 'negative'">{{ fmt(netProfit) }}</span> / {{ t('month') }}
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">
+            {{ t('revenue') }}: {{ fmt(monthlySales) }} - {{ t('materials') }}: {{ fmt(totalMaterialCost) }} - {{ t('rent') }}: {{ fmt(monthlyRent) }} - {{ t('electric') }}: {{ fmt(monthlyElectric) }} - {{ t('payroll') }}: {{ fmt(totalPayroll) }}
+          </div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="card-title" style="margin-bottom:16px">{{ t('investmentSufficient') }}</div>
+          <div :class="['verdict', surplus >= 0 ? 'yes' : 'no']" style="justify-content:center">
+            <span class="status-dot" :class="surplus >= 0 ? 'green' : 'red'"></span>
+            {{ surplus >= 0 ? t('verdictFundedYes') : t('verdictFundedNo') + ' ' + fmt(Math.abs(surplus)) }}
+          </div>
+          <div style="margin-top:16px;font-size:12px;color:var(--text-secondary)">
+            {{ t('runway') }}: <span class="mono">{{ runwayMonths.toFixed(1) }}</span> {{ t('monthsZeroSales') }}
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">
+            {{ t('breakEven') }}: <span class="mono">{{ fmt(breakEvenSales) }}</span> / {{ t('month') }}
+          </div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="card-title" style="margin-bottom:16px">{{ t('laborCapacity') }}</div>
+          <div :class="['verdict', utilizationPct <= 100 ? 'yes' : utilizationPct <= 120 ? 'maybe' : 'no']" style="justify-content:center">
+            <span class="status-dot" :class="utilizationPct <= 100 ? 'green' : utilizationPct <= 120 ? 'amber' : 'red'"></span>
+            {{ utilizationPct <= 100 ? t('capacityAdequate') : utilizationPct <= 120 ? t('capacityTight') : t('capacityInsufficient') }}
+          </div>
+          <div style="margin-top:16px;font-size:12px;color:var(--text-secondary)">
+            {{ t('utilization') }}: <span class="mono" :class="utilizationColor">{{ utilizationPct.toFixed(1) }}%</span>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">
+            {{ t('maxSales100') }}: <span class="mono">{{ fmt(capacityCeiling) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer: Export/Import -->
+    <div class="section no-print">
+      <div class="card" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center">
+        <button class="btn btn-primary" @click="exportData">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          {{ t('exportJSON') }}
+        </button>
+        <button class="btn" @click="$refs.importFile.click()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          {{ t('importJSON') }}
+        </button>
+        <input ref="importFile" type="file" accept=".json" style="display:none" @change="importData">
+        <button class="btn" @click="print">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          {{ t('print') }}
+        </button>
+        <button class="btn btn-danger" @click="resetAll">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          {{ t('resetAll') }}
+        </button>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:8px">{{ t('autoSaved') }}</span>
+      </div>
+    </div>
+
+    <footer style="text-align:center;padding:20px 0;font-size:11px;color:var(--text-muted);border-top:1px solid var(--border)">
+      {{ t('footer') }}
+    </footer>
+  </div>
+</div>
+
+<script>
+const { createApp } = Vue;
+
+// ==========================================
+// TRANSLATIONS
+// ==========================================
+const translations = {
+  en: {
+    title: 'Factory Feasibility Study',
+    subtitle: 'Comprehensive investment, production & salary analysis',
+    rate: 'Rate',
+    workHrsDay: 'Work hrs/day',
+    workDaysMo: 'Work days/mo',
+    totalInvestment: 'Total Investment',
+    monthlyRent: 'Monthly Rent',
+    monthlyElectric: 'Monthly Electric',
+    totalPayroll: 'Total Payroll',
+    monthlySales: 'Monthly Sales',
+    netProfitMo: 'Net Profit/mo',
+    laborUtilization: 'Labor Utilization',
+    productsWSales: 'Products w/ Sales',
+    mod01_title: 'Investment & Allocation',
+    mod02_title: 'Sales & Production Plan',
+    mod03_title: 'Products',
+    mod04_title: 'Labor Capacity',
+    mod05_title: 'Salary Model Lab',
+    mod06_title: 'Decision Dashboard',
+    investmentAmount: 'Investment Amount',
+    autoOrManual: 'Auto-calculated or set manually',
+    auto: 'Auto',
+    autoCalcFormula: 'Auto-calc formula',
+    threeMoRent: '3 months rent',
+    threeMoElectric: '3 months electric',
+    threeMoSalary: '3 months salaries',
+    machinery: 'Machinery',
+    rawMaterials: 'Raw Materials',
+    contingency: 'Contingency',
+    budgetAllocation: 'Budget Allocation',
+    allocateAcross: 'Allocate investment across categories',
+    category: 'Category',
+    amount: 'Amount',
+    fixed: 'Fixed',
+    allocated: 'Allocated',
+    available: 'Available',
+    surplusShortfall: 'Surplus / Shortfall',
+    runway: 'Runway',
+    monthsZeroSales: 'months at zero sales (fixed costs only)',
+    monthlySalesTarget: 'Monthly Sales Target',
+    basedOnSixMo: 'Based on 6-month total',
+    worst: 'Worst',
+    base: 'Base',
+    best: 'Best',
+    scenarioMult: 'Scenario Multiplier',
+    baseMonthlySales: 'Base Monthly Sales',
+    productionPlan: 'Production Plan',
+    qtyPerMonth: 'Qty to produce per month at current sales level',
+    totalQty: 'Total Qty',
+    product: 'Product',
+    share: 'Share',
+    revenue: 'Revenue',
+    pricePc: 'Price/pc',
+    qtyToProduce: 'Qty to Produce',
+    materialCost: 'Material Cost',
+    laborHrs: 'Labor Hrs',
+    total: 'TOTAL',
+    priced: 'priced',
+    items: 'items',
+    produced: 'produced',
+    annualSales: 'Annual Sales',
+    missingPrices: 'Missing Prices',
+    productName: 'Product Name',
+    rawCost: 'Raw Cost',
+    annualQty: 'Annual Qty',
+    priceUSD: 'Price USD',
+    priceCNY: 'Price CNY',
+    annualRevenue: 'Annual Revenue',
+    catalogue: 'Catalogue',
+    noPrice: 'No Price',
+    groupTotal: 'Group Total',
+    workforce: 'Workforce',
+    laborers: 'laborers',
+    admin: 'admin',
+    name: 'Name',
+    position: 'Position',
+    basicSalary: 'Basic Salary',
+    type: 'Type',
+    laborTag: 'Labor',
+    adminTag: 'Admin',
+    monthlyPayroll: 'Monthly Payroll',
+    laborCost: 'Labor Cost',
+    adminCost: 'Admin Cost',
+    capacityAnalysis: 'Capacity Analysis',
+    basedOn: 'Based on',
+    hrsDay: 'hrs/day',
+    days: 'days',
+    availHrsMo: 'Available Hours/mo',
+    reqHrsMo: 'Required Hours/mo',
+    utilization: 'Utilization',
+    overtimeReq: 'Overtime required',
+    hours: 'hours',
+    overCapacity: 'over capacity',
+    capacityCeiling: 'Capacity ceiling',
+    maxMonthlySales: 'Max monthly sales before 100% utilization',
+    model0Tab: 'Model 0: Fixed',
+    modelATab: 'Model A: Basic + % Sales',
+    modelBTab: 'Model B: Uplift %',
+    modelCTab: 'Model C: Tiered Targets',
+    model0Desc: 'Current fixed salary model.',
+    laborAlwaysFixed: 'Labor salaries are always fixed.',
+    onlyAdminVariable: 'Only Admin/Employees can receive variable pay in Models A-C.',
+    employee: 'Employee',
+    calculatedPay: 'Calculated Pay',
+    totalMonthlyPayroll: 'Total Monthly Payroll',
+    modelADesc: 'Only Admin/Employees receive variable pay from the sales pool.',
+    poolPctSales: 'Pool % of Sales',
+    distribution: 'Distribution',
+    equalAdminOnly: 'Equal (Admin only)',
+    weightedByBasic: 'Weighted by Basic (Admin only)',
+    basic: 'Basic',
+    bonus: 'Bonus',
+    change: 'Change',
+    modelBDesc: 'Uplift applies only to Admin/Employees.',
+    upliftPct: 'Uplift %',
+    applyTo: 'Apply to',
+    adminOnlyLaborFixed: 'Admin Only (Labor fixed)',
+    allIncludingLabor: 'All (including Labor)',
+    before: 'Before',
+    after: 'After',
+    modelCDesc: 'Tiered uplift applies only to Admin/Employees when sales targets are reached.',
+    tier: 'Tier',
+    salesGTE: 'Sales >=',
+    threshold: 'Threshold',
+    upliftPct: 'Uplift%',
+    currentTier: 'Current Tier',
+    noTierReached: 'No tier reached',
+    tierBonus: 'Tier Bonus',
+    modelComparison: 'Model Comparison',
+    model0Label: 'Model 0: Fixed',
+    modelALabel: 'Model A: % Sales',
+    modelBLabel: 'Model B: Uplift',
+    modelCLabel: 'Model C: Tiered',
+    ofSales: 'of sales',
+    totals: 'Totals',
+    fixed: 'fixed',
+    laborFixedTag: 'Labor (fixed)',
+    profitableToOperate: 'Profitable to Operate?',
+    verdictYes: 'YES - Profitable',
+    verdictMaybe: 'MARGINAL - Near break-even',
+    verdictNo: 'NO - Loss making',
+    netProfit: 'Net profit',
+    month: 'month',
+    revenue: 'Revenue',
+    materials: 'Materials',
+    rent: 'Rent',
+    electric: 'Electric',
+    payroll: 'Payroll',
+    investmentSufficient: 'Investment Sufficient?',
+    verdictFundedYes: 'YES - Fully funded',
+    verdictFundedNo: 'NO - Shortfall of',
+    breakEven: 'Break-even',
+    laborCapacity: 'Labor Capacity',
+    capacityAdequate: 'ADEQUATE',
+    capacityTight: 'TIGHT - Overtime needed',
+    capacityInsufficient: 'INSUFFICIENT - Hire more',
+    maxSales100: 'Max sales at 100%',
+    exportJSON: 'Export JSON',
+    importJSON: 'Import JSON',
+    print: 'Print',
+    resetAll: 'Reset All',
+    autoSaved: 'Auto-saved to browser',
+    footer: 'Factory Feasibility Study Dashboard \u00b7 All data is local \u00b7 No server connection required',
+  },
+  cn: {
+    title: '\u5de5\u5382\u53ef\u884c\u6027\u7814\u7a76',
+    subtitle: '\u7efc\u5408\u6295\u8d44\u3001\u751f\u4ea7\u4e0e\u85aa\u8d44\u5206\u6790',
+    rate: '\u6c47\u7387',
+    workHrsDay: '\u6bcf\u65e5\u5de5\u4f5c\u5c0f\u65f6',
+    workDaysMo: '\u6bcf\u6708\u5de5\u4f5c\u5929\u6570',
+    totalInvestment: '\u6295\u8d44\u603b\u989d',
+    monthlyRent: '\u6708\u79df\u91d1',
+    monthlyElectric: '\u6708\u7535\u8d39',
+    totalPayroll: '\u85aa\u8d44\u603b\u8ba1',
+    monthlySales: '\u6708\u9500\u552e\u989d',
+    netProfitMo: '\u6708\u51c0\u5229\u6da6',
+    laborUtilization: '\u52b3\u52a8\u529b\u5229\u7528\u7387',
+    productsWSales: '\u6709\u552e\u4ef7\u4ea7\u54c1',
+    mod01_title: '\u6295\u8d44\u4e0e\u5206\u914d',
+    mod02_title: '\u9500\u552e\u4e0e\u751f\u4ea7\u8ba1\u5212',
+    mod03_title: '\u4ea7\u54c1',
+    mod04_title: '\u52b3\u52a8\u529b\u5bb9\u91cf',
+    mod05_title: '\u85aa\u8d44\u6a21\u578b\u5b9e\u9a8c\u5ba4',
+    mod06_title: '\u51b3\u7b56\u4eea\u8868\u677f',
+    investmentAmount: '\u6295\u8d44\u91d1\u989d',
+    autoOrManual: '\u81ea\u52a8\u8ba1\u7b97\u6216\u624b\u52a8\u8bbe\u7f6e',
+    auto: '\u81ea\u52a8',
+    autoCalcFormula: '\u81ea\u52a8\u8ba1\u7b97\u516c\u5f0f',
+    threeMoRent: '3\u4e2a\u6708\u79df\u91d1',
+    threeMoElectric: '3\u4e2a\u6708\u7535\u8d39',
+    threeMoSalary: '3\u4e2a\u6708\u85aa\u8d44',
+    machinery: '\u8bbe\u5907',
+    rawMaterials: '\u539f\u6750\u6599',
+    contingency: '\u5e94\u6025\u8d44\u91d1',
+    budgetAllocation: '\u9884\u7b97\u5206\u914d',
+    allocateAcross: '\u5c06\u6295\u8d44\u5206\u914d\u5230\u5404\u7c7b\u522b',
+    category: '\u7c7b\u522b',
+    amount: '\u91d1\u989d',
+    fixed: '\u56fa\u5b9a',
+    allocated: '\u5df2\u5206\u914d',
+    available: '\u53ef\u7528',
+    surplusShortfall: '\u76c8\u4f59 / \u4e0d\u8db3',
+    runway: '\u8d44\u91d1\u5468\u8f6c\u671f',
+    monthsZeroSales: '\u4e2a\u6708\uff08\u96f6\u9500\u552e\uff0c\u4ec5\u56fa\u5b9a\u6210\u672c\uff09',
+    monthlySalesTarget: '\u6708\u5ea6\u9500\u552e\u76ee\u6807',
+    basedOnSixMo: '\u57fa\u4e8e6\u4e2a\u6708\u603b\u8ba1',
+    worst: '\u6700\u5dee',
+    base: '\u57fa\u51c6',
+    best: '\u6700\u4f73',
+    scenarioMult: '\u573a\u666f\u500d\u7387',
+    baseMonthlySales: '\u57fa\u51c6\u6708\u9500\u552e\u989d',
+    productionPlan: '\u751f\u4ea7\u8ba1\u5212',
+    qtyPerMonth: '\u5f53\u524d\u9500\u552e\u6c34\u5e73\u4e0b\u6bcf\u6708\u4ea7\u91cf',
+    totalQty: '\u603b\u6570\u91cf',
+    product: '\u4ea7\u54c1',
+    share: '\u5360\u6bd4',
+    revenue: '\u6536\u5165',
+    pricePc: '\u5355\u4ef7',
+    qtyToProduce: '\u751f\u4ea7\u6570\u91cf',
+    materialCost: '\u6750\u6599\u6210\u672c',
+    laborHrs: '\u5de5\u65f6',
+    total: '\u5408\u8ba1',
+    priced: '\u5df2\u5b9a\u4ef7',
+    items: '\u9879\u76ee',
+    produced: '\u5df2\u751f\u4ea7',
+    annualSales: '\u5e74\u9500\u552e\u989d',
+    missingPrices: '\u7f3a\u5c11\u552e\u4ef7',
+    productName: '\u4ea7\u54c1\u540d\u79f0',
+    rawCost: '\u539f\u6750\u6599\u6210\u672c',
+    annualQty: '\u5e74\u5ea6\u6570\u91cf',
+    priceUSD: '\u7f8e\u5143\u552e\u4ef7',
+    priceCNY: '\u4eba\u6c11\u5e01\u552e\u4ef7',
+    annualRevenue: '\u5e74\u5ea6\u6536\u5165',
+    catalogue: '\u76ee\u5f55',
+    noPrice: '\u65e0\u552e\u4ef7',
+    groupTotal: '\u7ec4\u5408\u8ba1',
+    workforce: '\u5458\u5de5',
+    laborers: '\u5de5\u4eba',
+    admin: '\u7ba1\u7406',
+    name: '\u59d3\u540d',
+    position: '\u804c\u4f4d',
+    basicSalary: '\u57fa\u672c\u5de5\u8d44',
+    type: '\u7c7b\u578b',
+    laborTag: '\u5de5\u4eba',
+    adminTag: '\u7ba1\u7406',
+    monthlyPayroll: '\u6708\u85aa\u603b\u8ba1',
+    laborCost: '\u5de5\u4eba\u6210\u672c',
+    adminCost: '\u7ba1\u7406\u6210\u672c',
+    capacityAnalysis: '\u5bb9\u91cf\u5206\u6790',
+    basedOn: '\u57fa\u4e8e',
+    hrsDay: '\u5c0f\u65f6/\u5929',
+    days: '\u5929',
+    availHrsMo: '\u53ef\u7528\u5de5\u65f6/\u6708',
+    reqHrsMo: '\u9700\u6c42\u5de5\u65f6/\u6708',
+    utilization: '\u5229\u7528\u7387',
+    overtimeReq: '\u9700\u8981\u52a0\u73ed',
+    hours: '\u5c0f\u65f6',
+    overCapacity: '\u8d85\u8fc7\u5bb9\u91cf',
+    capacityCeiling: '\u5bb9\u91cf\u4e0a\u9650',
+    maxMonthlySales: '100%\u5229\u7528\u7387\u65f6\u7684\u6700\u5927\u6708\u9500\u552e\u989d',
+    model0Tab: '\u6a21\u578b 0: \u56fa\u5b9a',
+    modelATab: '\u6a21\u578b A: \u57fa\u672c\u5de5\u8d44+\u9500\u552e\u63d0\u6210',
+    modelBTab: '\u6a21\u578b B: \u6da8\u5e45%',
+    modelCTab: '\u6a21\u578b C: \u9636\u68af\u76ee\u6807',
+    model0Desc: '\u5f53\u524d\u56fa\u5b9a\u85aa\u8d44\u6a21\u578b\u3002',
+    laborAlwaysFixed: '\u5de5\u4eba\u85aa\u8d44\u59cb\u7ec8\u56fa\u5b9a\u3002',
+    onlyAdminVariable: '\u53ea\u6709\u7ba1\u7406\u5c97\u4f4d\u53ef\u5728\u6a21\u578b A-C \u4e2d\u83b7\u5f97\u6d6e\u52a8\u85aa\u8d44\u3002',
+    employee: '\u5458\u5de5',
+    calculatedPay: '\u5b9e\u53d1\u85aa\u8d44',
+    totalMonthlyPayroll: '\u6708\u85aa\u603b\u8ba1',
+    modelADesc: '\u53ea\u6709\u7ba1\u7406\u5c97\u4f4d\u4ece\u9500\u552e\u6c60\u4e2d\u83b7\u5f97\u6d6e\u52a8\u85aa\u8d44\u3002',
+    poolPctSales: '\u9500\u552e\u63d0\u6210\u6bd4\u4f8b',
+    distribution: '\u5206\u914d\u65b9\u5f0f',
+    equalAdminOnly: '\u5e73\u5747\u5206\u914d\uff08\u4ec5\u7ba1\u7406\uff09',
+    weightedByBasic: '\u6309\u57fa\u672c\u5de5\u8d44\u52a0\u6743\uff08\u4ec5\u7ba1\u7406\uff09',
+    basic: '\u57fa\u672c\u5de5\u8d44',
+    bonus: '\u5956\u91d1',
+    change: '\u53d8\u5316',
+    modelBDesc: '\u6da8\u5e45\u4ec5\u9002\u7528\u4e8e\u7ba1\u7406\u5c97\u4f4d\u3002',
+    upliftPct: '\u6da8\u5e45\u767e\u5206\u6bd4',
+    applyTo: '\u5e94\u7528\u8303\u56f4',
+    adminOnlyLaborFixed: '\u4ec5\u7ba1\u7406\uff08\u5de5\u4eba\u56fa\u5b9a\uff09',
+    allIncludingLabor: '\u5168\u5458\uff08\u542b\u5de5\u4eba\uff09',
+    before: '\u8c03\u6574\u524d',
+    after: '\u8c03\u6574\u540e',
+    modelCDesc: '\u9636\u68af\u6da8\u5e45\u4ec5\u5728\u8fbe\u6210\u9500\u552e\u76ee\u6807\u65f6\u9002\u7528\u4e8e\u7ba1\u7406\u5c97\u4f4d\u3002',
+    tier: '\u9636\u68af',
+    salesGTE: '\u9500\u552e\u989d >=',
+    threshold: '\u9608\u503c',
+    upliftPct: '\u6da8\u5e45%',
+    currentTier: '\u5f53\u524d\u9636\u68af',
+    noTierReached: '\u672a\u8fbe\u6210\u4efb\u4f55\u9636\u68af',
+    tierBonus: '\u9636\u68af\u5956\u91d1',
+    modelComparison: '\u6a21\u578b\u5bf9\u6bd4',
+    model0Label: '\u6a21\u578b 0: \u56fa\u5b9a',
+    modelALabel: '\u6a21\u578b A: \u9500\u552e\u63d0\u6210',
+    modelBLabel: '\u6a21\u578b B: \u6da8\u5e45',
+    modelCLabel: '\u6a21\u578b C: \u9636\u68af',
+    ofSales: '\u5360\u9500\u552e\u989d',
+    totals: '\u5408\u8ba1',
+    fixed: '\u56fa\u5b9a',
+    laborFixedTag: '\u5de5\u4eba\uff08\u56fa\u5b9a\uff09',
+    profitableToOperate: '\u662f\u5426\u76c8\u5229\uff1f',
+    verdictYes: '\u662f - \u76c8\u5229',
+    verdictMaybe: '\u8fb9\u9645 - \u63a5\u8fd1\u76c8\u4e8f\u5e73\u8861',
+    verdictNo: '\u5426 - \u4e8f\u635f',
+    netProfit: '\u51c0\u5229\u6da6',
+    month: '\u6708',
+    revenue: '\u8425\u6536',
+    materials: '\u6750\u6599',
+    rent: '\u79df\u91d1',
+    electric: '\u7535\u8d39',
+    payroll: '\u85aa\u8d44',
+    investmentSufficient: '\u6295\u8d44\u662f\u5426\u5145\u8db3\uff1f',
+    verdictFundedYes: '\u662f - \u8d44\u91d1\u5145\u8db3',
+    verdictFundedNo: '\u5426 - \u7f3a\u53e3',
+    breakEven: '\u76c8\u4e8f\u5e73\u8861\u70b9',
+    laborCapacity: '\u52b3\u52a8\u529b\u5bb9\u91cf',
+    capacityAdequate: '\u5145\u8db3',
+    capacityTight: '\u7d27\u5f20 - \u9700\u52a0\u73ed',
+    capacityInsufficient: '\u4e0d\u8db3 - \u9700\u62db\u4eba',
+    maxSales100: '100%\u5229\u7528\u65f6\u6700\u5927\u9500\u552e\u989d',
+    exportJSON: '\u5bfc\u51fa JSON',
+    importJSON: '\u5bfc\u5165 JSON',
+    print: '\u6253\u5370',
+    resetAll: '\u91cd\u7f6e\u5168\u90e8',
+    autoSaved: '\u81ea\u52a8\u4fdd\u5b58\u5230\u6d4f\u89c8\u5668',
+    footer: '\u5de5\u5382\u53ef\u884c\u6027\u7814\u7a76\u4eea\u8868\u677f \u00b7 \u6240\u6709\u6570\u636e\u4ec5\u5b58\u50a8\u5728\u672c\u5730 \u00b7 \u65e0\u9700\u670d\u52a1\u5668\u8fde\u63a5',
+  }
+};
+
+// ==========================================
+// VUE APP
+// ==========================================
+createApp({
+  data() {
+    return {
+      // Language
+      lang: 'en',
+      // Core
+      currency: 'CNY',
+      exchangeRate: 7.0,
+      workHoursPerDay: 8,
+      workDaysPerMonth: 26,
+      monthlyRent: 185000 / 12,
+      monthlyElectric: 5000,
+      totalInvestment: 0,
+      autoInvestment: true,
+      monthlySales: 336199,
+      baseMonthlySales: 336199,
+      salesMultiplier: 1.0,
+      salesScenario: 'base',
+      salaryModel: 'fixed',
+      // Model A
+      modelA: { poolPct: 5, distMethod: 'basic_weighted', adminPct: 50 },
+      // Model B - BUG FIX: default applyTo changed to 'admin' so labor stays fixed
+      modelB: { upliftPct: 10, applyTo: 'admin' },
+      // Model C
+      modelC: {
+        tiers: [
+          { threshold: 200000, upliftPct: 5 },
+          { threshold: 300000, upliftPct: 10 },
+          { threshold: 400000, upliftPct: 15 },
+          { threshold: 500000, upliftPct: 20 },
+        ]
+      },
+      budgets: [
+        { key: 'machinery', name: 'Machinery Reserve', amount: 200000, auto: false, isReserve: false },
+        { key: 'rent3', name: 'Rent (3 months advance)', amount: 0, auto: true, isReserve: true, monthsKey: 'rentMonths' },
+        { key: 'electric3', name: 'Electricity (3 months advance)', amount: 0, auto: true, isReserve: true, monthsKey: 'electricMonths' },
+        { key: 'salary3', name: 'Salary Reserve (3 months)', amount: 0, auto: true, isReserve: true, monthsKey: 'salaryMonths' },
+        { key: 'rawmaterials', name: 'Raw Materials Stock', amount: 100000, auto: false, isReserve: false },
+        { key: 'contingency', name: 'Contingency Fund', amount: 100000, auto: false, isReserve: false },
+      ],
+      rentMonths: 3,
+      electricMonths: 3,
+      salaryMonths: 3,
+      productGroups: [],
+      employees: [],
+      investmentChart: null,
+      laborChart: null,
+    };
+  },
+
+  computed: {
+    // Translation helper
+    t() {
+      return (key) => {
+        const tr = translations[this.lang];
+        return tr && tr[key] ? tr[key] : key;
+      };
+    },
+
+    allProducts() {
+      return this.productGroups.flatMap(g => g.products);
+    },
+    productsWithSales() {
+      return this.allProducts.filter(p => p.priceUSD !== null && p.priceUSD !== undefined && p.priceUSD > 0).length;
+    },
+    totalActualSales() {
+      return this.allProducts.reduce((s, p) => s + (p.annualRevenue || 0), 0);
+    },
+    totalPayroll() {
+      return this.employees.reduce((s, e) => s + (e.basicSalary || 0), 0);
+    },
+    laborCost() {
+      return this.employees.filter(e => e.isLabor).reduce((s, e) => s + (e.basicSalary || 0), 0);
+    },
+    adminCost() {
+      return this.employees.filter(e => !e.isLabor).reduce((s, e) => s + (e.basicSalary || 0), 0);
+    },
+    laborCount() {
+      return this.employees.filter(e => e.isLabor).length;
+    },
+    adminCount() {
+      return this.employees.filter(e => !e.isLabor).length;
+    },
+    autoCalcInvestment() {
+      return this.monthlyRent * 3 + this.monthlyElectric * 3 + this.totalPayroll * 3 + 200000 + 100000 + 100000;
+    },
+    allocated() {
+      return this.budgets.reduce((s, b) => s + (b.amount || 0), 0);
+    },
+    surplus() {
+      return this.totalInvestment - this.allocated;
+    },
+    allocationPct() {
+      return this.totalInvestment > 0 ? (this.allocated / this.totalInvestment) * 100 : 0;
+    },
+    runwayMonths() {
+      const fixed = this.monthlyRent + this.monthlyElectric + this.totalPayroll;
+      return fixed > 0 ? this.totalInvestment / fixed : 0;
+    },
+    totalProductionQty() {
+      return this.allProducts.reduce((s, p) => s + (p.qtyToProduce || 0), 0);
+    },
+    totalMaterialCost() {
+      return this.allProducts.reduce((s, p) => s + (p.monthlyMaterialCost || 0), 0);
+    },
+    totalLaborHoursNeeded() {
+      return this.allProducts.reduce((s, p) => s + (p.monthlyLaborHours || 0), 0);
+    },
+    availableHours() {
+      return this.laborCount * this.workHoursPerDay * this.workDaysPerMonth;
+    },
+    utilizationPct() {
+      return this.availableHours > 0 ? (this.totalLaborHoursNeeded / this.availableHours) * 100 : 0;
+    },
+    capacityCeiling() {
+      if (this.totalLaborHoursNeeded <= 0) return 0;
+      return this.availableHours / this.totalLaborHoursNeeded * this.monthlySales;
+    },
+    netProfit() {
+      return this.monthlySales - this.totalMaterialCost - this.monthlyRent - this.monthlyElectric - this.totalPayroll;
+    },
+    breakEvenSales() {
+      const fixed = this.monthlyRent + this.monthlyElectric + this.totalPayroll;
+      const matPct = this.monthlySales > 0 ? this.totalMaterialCost / this.monthlySales : 0;
+      return matPct < 1 ? fixed / (1 - matPct) : 0;
+    },
+    payrollColor() {
+      const pct = this.monthlySales > 0 ? this.totalPayroll / this.monthlySales * 100 : 0;
+      return pct > 50 ? 'negative' : pct > 30 ? 'amber' : 'positive';
+    },
+    salesColor() {
+      return this.monthlySales >= this.breakEvenSales ? 'positive' : 'amber';
+    },
+    utilizationColor() {
+      return this.utilizationPct > 100 ? 'negative' : this.utilizationPct > 85 ? 'amber' : 'positive';
+    },
+    // Model A -- Variable pay only for ADMIN employees. Labor stays at basic.
+    modelACalculations() {
+      const pool = this.monthlySales * (this.modelA.poolPct / 100);
+      const admins = this.employees.filter(e => !e.isLabor);
+      let adminShares = [];
+      if (this.modelA.distMethod === 'equal') {
+        const share = admins.length > 0 ? pool / admins.length : 0;
+        adminShares = admins.map(() => share);
+      } else {
+        const totalBasic = admins.reduce((s, e) => s + e.basicSalary, 0);
+        adminShares = admins.map(e => totalBasic > 0 ? pool * (e.basicSalary / totalBasic) : 0);
+      }
+      const result = [];
+      let ai = 0;
+      for (const e of this.employees) {
+        const bonus = e.isLabor ? 0 : (adminShares[ai++] || 0);
+        result.push({
+          id: e.id, name: e.name, position: e.position, isLabor: e.isLabor,
+          basic: e.basicSalary, bonus, total: e.basicSalary + bonus,
+          change: e.basicSalary > 0 ? (bonus / e.basicSalary) * 100 : 0
+        });
+      }
+      return result;
+    },
+    modelATotalBonus() {
+      return this.modelACalculations.reduce((s, e) => s + e.bonus, 0);
+    },
+    modelATotalPay() {
+      return this.totalPayroll + this.modelATotalBonus;
+    },
+    modelAPayrollPct() {
+      return this.monthlySales > 0 ? (this.modelATotalPay / this.monthlySales) * 100 : 0;
+    },
+    // Model B -- Uplift applies to admin by default. Labor stays fixed unless "All" selected.
+    modelBCalculations() {
+      const apply = this.modelB.applyTo;
+      const uplift = this.modelB.upliftPct / 100;
+      return this.employees.map(e => {
+        const shouldApply = apply === 'all' || (!e.isLabor);
+        const after = shouldApply ? Math.round(e.basicSalary * (1 + uplift)) : e.basicSalary;
+        return {
+          id: e.id, name: e.name, position: e.position, isLabor: e.isLabor,
+          before: e.basicSalary, after,
+          changeAmt: after - e.basicSalary,
+          changePct: e.basicSalary > 0 ? ((after - e.basicSalary) / e.basicSalary) * 100 : 0
+        };
+      });
+    },
+    modelBTotalPay() {
+      return this.modelBCalculations.reduce((s, e) => s + e.after, 0);
+    },
+    modelBTotalChange() {
+      return this.modelBTotalPay - this.totalPayroll;
+    },
+    // Model C
+    activeTier() {
+      const tiers = [...this.modelC.tiers].sort((a, b) => b.threshold - a.threshold);
+      for (const t of tiers) {
+        if (this.monthlySales >= t.threshold) return t;
+      }
+      return null;
+    },
+    modelCCalculations() {
+      const tier = this.activeTier;
+      const upliftPct = tier ? tier.upliftPct / 100 : 0;
+      return this.employees.map(e => {
+        const bonus = e.isLabor ? 0 : Math.round(e.basicSalary * upliftPct);
+        return {
+          id: e.id, name: e.name, position: e.position, isLabor: e.isLabor,
+          basic: e.basicSalary, bonus, total: e.basicSalary + bonus,
+          change: e.basicSalary > 0 ? (bonus / e.basicSalary) * 100 : 0
+        };
+      });
+    },
+    modelCTotalBonus() {
+      return this.modelCCalculations.reduce((s, e) => s + e.bonus, 0);
+    },
+    modelCTotalPay() {
+      return this.totalPayroll + this.modelCTotalBonus;
+    },
+    modelCPayrollPct() {
+      return this.monthlySales > 0 ? (this.modelCTotalPay / this.monthlySales) * 100 : 0;
+    },
+  },
+
+  watch: {
+    autoInvestment(val) {
+      if (val) this.totalInvestment = this.autoCalcInvestment;
+    },
+    autoCalcInvestment(val) {
+      if (this.autoInvestment) this.totalInvestment = val;
+    },
+    salesScenario(val) {
+      if (val === 'worst') this.salesMultiplier = 0.65;
+      else if (val === 'base') this.salesMultiplier = 1.0;
+      else if (val === 'best') this.salesMultiplier = 1.35;
+    },
+    salesMultiplier(val) {
+      this.monthlySales = Math.round(this.baseMonthlySales * val);
+    },
+    baseMonthlySales(val) {
+      this.monthlySales = Math.round(val * this.salesMultiplier);
+    },
+    monthlySales() { this.$nextTick(() => this.updateProductionPlan()); },
+    totalActualSales() { this.$nextTick(() => this.updateProductionPlan()); },
+    productGroups: { deep: true, handler() { this.$nextTick(() => this.updateProductionPlan()); } },
+    budgets: { deep: true, handler() { this.updateBudgetAuto(); } },
+    totalInvestment() { this.$nextTick(() => this.renderInvestmentChart()); },
+    allocated() { this.$nextTick(() => this.renderInvestmentChart()); },
+    totalLaborHoursNeeded() { this.$nextTick(() => this.renderLaborChart()); },
+    availableHours() { this.$nextTick(() => this.renderLaborChart()); },
+    currency() { this.$nextTick(() => { this.renderInvestmentChart(); this.renderLaborChart(); }); },
+  },
+
+  methods: {
+    fmt(val) {
+      if (val === null || val === undefined || isNaN(val)) return '-';
+      const v = this.currency === 'USD' ? val / this.exchangeRate : val;
+      const sym = this.currency === 'USD' ? '$' : 'CNY ';
+      if (Math.abs(v) >= 1000000) return sym + (v / 1000000).toFixed(2) + 'M';
+      if (Math.abs(v) >= 1000) return sym + (v / 1000).toFixed(1) + 'K';
+      return sym + v.toFixed(2);
+    },
+    formatNumber(n, digits = 0) {
+      if (n === null || n === undefined || isNaN(n)) return '-';
+      return n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    },
+
+    initData() {
+      // Group 1: Lifting Clutches
+      const g1 = [
+        { name: "KK LIFTING CLUTCH 1.3T", rawCost: 22.316, hours: 0.161956, qty: 694, priceUSD: 10.8 },
+        { name: "KK LIFTING CLUTCH 2.5T", rawCost: 37.097, hours: 0.169535, qty: 4623, priceUSD: 11.9 },
+        { name: "KK LIFTING CLUTCH 5T", rawCost: 74.942, hours: 0.215803, qty: 2134, priceUSD: 22.8 },
+        { name: "KK LIFTING CLUTCH 10T", rawCost: 188.416, hours: 0.362381, qty: 1047, priceUSD: 60.8 },
+        { name: "KK LIFTING CLUTCH 20T", rawCost: 455.147, hours: 0.739105, qty: 221, priceUSD: 128 },
+        { name: "KK LIFTING CLUTCH 32T", rawCost: 1087.471, hours: 4.571667, qty: 24, priceUSD: 500 },
+      ];
+      // Group 2: Cast in Loops
+      const g2 = [
+        { name: "Cast in loop 0.8Tx210", rawCost: 1.172562, hours: 0.55035, qty: 0, priceUSD: null },
+        { name: "Cast in loop 1.2Tx225", rawCost: 1.603072, hours: 0.575349, qty: 0, priceUSD: null },
+        { name: "Cast in loop 1.6Tx235", rawCost: 1.98138, hours: 0.593042, qty: 0, priceUSD: null },
+        { name: "Cast in loop 1.6Tx330", rawCost: 2.553433, hours: 0.662377, qty: 0, priceUSD: null },
+        { name: "Cast in loop 1.6Tx460", rawCost: 3.290714, hours: 0.804419, qty: 0, priceUSD: null },
+        { name: "Cast in loop 2Tx280", rawCost: 2.830118, hours: 0.640236, qty: 0, priceUSD: null },
+        { name: "Cast in loop 2.5Tx315", rawCost: 3.52993, hours: 0.726824, qty: 0, priceUSD: null },
+        { name: "Cast in loop 2.5Tx460", rawCost: 4.63309, hours: 0.936317, qty: 0, priceUSD: null },
+        { name: "Cast in loop 4Tx340", rawCost: 5.454542, hours: 1.073958, qty: 0, priceUSD: null },
+        { name: "Cast in loop 5.2Tx360", rawCost: 8.040259, hours: 1.38896, qty: 0, priceUSD: null },
+        { name: "Cast in loop 5.2Tx460", rawCost: 9.493617, hours: 1.62186, qty: 0, priceUSD: null },
+        { name: "Cast in loop 6.3Tx390", rawCost: 11.550237, hours: 1.720462, qty: 0, priceUSD: null },
+        { name: "Cast in loop 8Tx460", rawCost: 17.974119, hours: 2.351879, qty: 0, priceUSD: null },
+        { name: "Cast in loop 10Tx520", rawCost: 24.13383, hours: 2.713888, qty: 0, priceUSD: null },
+      ];
+      // Group 3: Combination Pin Anchor Ring Clutches
+      const g3 = [
+        { name: "Combination Pin Anchor Ring Clutch 2.5T", rawCost: 34.984498, hours: 0.260985, qty: 0, priceUSD: null },
+        { name: "Combination Pin Anchor Ring Clutch 5T", rawCost: 63.480368, hours: 0.276359, qty: 0, priceUSD: null },
+        { name: "Combination Pin Anchor Ring Clutch 10T", rawCost: 156.669747, hours: 0.619881, qty: 0, priceUSD: null },
+      ];
+      // Group 4: Spread Anchor Combination Ring Clutches
+      const g4 = [
+        { name: "Spread Anchor Combination Ring Clutch 1.25T", rawCost: 26.594331, hours: 0.245033, qty: 1133, priceUSD: 6.8 },
+        { name: "Spread Anchor Combination Ring Clutch 2.5T", rawCost: 45.884988, hours: 0.327645, qty: 445, priceUSD: 14.9 },
+      ];
+      // Group 5: Sealing Caps
+      const g5 = [
+        { name: "Sealing Cap M12", rawCost: 0.07286, hours: 0.000192, qty: 29300, priceUSD: 0.024 },
+        { name: "Sealing Cap M16", rawCost: 0.1263, hours: 0.000192, qty: 101220, priceUSD: 0.028 },
+        { name: "Sealing Cap M20", rawCost: 0.17169, hours: 0.000232, qty: 15963, priceUSD: null },
+        { name: "Sealing Cap M24", rawCost: 0.195381, hours: 0.000279, qty: 30255, priceUSD: 0.047 },
+        { name: "Sealing Cap M30", rawCost: 0.187622, hours: 0.003705, qty: 22000, priceUSD: null },
+      ];
+      // Group 6: Pin Anchor Rubber Formers
+      const g6 = [
+        { name: "Pin Anchor Rubber Former 1.3T", rawCost: 4.170095, hours: 0.002974, qty: 1005, priceUSD: 0.74 },
+        { name: "Pin Anchor Rubber Former 2.5T", rawCost: 6.74894, hours: 0.00309, qty: 3511, priceUSD: 1.2 },
+        { name: "Pin Anchor Rubber Former 5T", rawCost: 13.507817, hours: 0.003246, qty: 1507, priceUSD: 2.4 },
+        { name: "Pin Anchor Rubber Former 7.5T", rawCost: 25.2105, hours: 0.0045, qty: 104, priceUSD: 4.36 },
+        { name: "Pin Anchor Rubber Former 10T", rawCost: 25.6922, hours: 0.0045, qty: 305, priceUSD: 4.46 },
+        { name: "Pin Anchor Rubber Former 20T", rawCost: 60.77065, hours: 0.0045, qty: 0, priceUSD: null },
+      ];
+      // Group 7: Spread Anchor Recess Formers
+      const g7 = [
+        { name: "SPREAD ANCHOR RECESS FORMER 1.25T", rawCost: 4.045095, hours: 0.014006, qty: 0, priceUSD: null },
+        { name: "SPREAD ANCHOR RECESS FORMER 2.5T", rawCost: 5.467315, hours: 0.022443, qty: 150, priceUSD: 1.3 },
+        { name: "SPREAD ANCHOR RECESS FORMER 5T", rawCost: 11.610317, hours: 0.014122, qty: 0, priceUSD: null },
+        { name: "SPREAD ANCHOR RECESS FORMER 10T", rawCost: 31.4422, hours: 0.017338, qty: 0, priceUSD: null },
+      ];
+      // Group 8: Nailing Plates
+      const g8 = [
+        { name: "Nailing Plate M10", rawCost: 0.456875, hours: 0.000505, qty: 0, priceUSD: null },
+        { name: "Nailing Plate M12", rawCost: 0.496875, hours: 0.000505, qty: 20110, priceUSD: 0.1 },
+        { name: "Nailing Plate M16", rawCost: 0.537692, hours: 0.000505, qty: 69806, priceUSD: 0.103 },
+        { name: "Nailing Plate M20", rawCost: 0.587692, hours: 0.000505, qty: 55144, priceUSD: 0.106 },
+        { name: "Nailing Plate M24", rawCost: 0.6725, hours: 0.000505, qty: 20061, priceUSD: 0.132 },
+        { name: "Nailing Plate M30", rawCost: 0.817143, hours: 0.000699, qty: 10071, priceUSD: 0.159 },
+        { name: "Nailing Plate M36", rawCost: 1.105385, hours: 0.000699, qty: 5030, priceUSD: 0.215 },
+        { name: "Large Nailing Plate M12", rawCost: 0.504286, hours: 0.000568, qty: 0, priceUSD: null },
+        { name: "Large Nailing Plate M16", rawCost: 0.549231, hours: 0.000568, qty: 30020, priceUSD: 0.112 },
+        { name: "Large Nailing Plate M20", rawCost: 0.559231, hours: 0.000568, qty: 5110, priceUSD: 0.119 },
+        { name: "Large Nailing Plate M24", rawCost: 0.725, hours: 0.000758, qty: 35089, priceUSD: 0.144 },
+        { name: "Large Nailing Plate M30", rawCost: 0.863846, hours: 0.000758, qty: 65268, priceUSD: 0.17 },
+        { name: "Large Nailing Plate M36", rawCost: 1.209231, hours: 0.001136, qty: 5082, priceUSD: 0.23 },
+        { name: "Large Nailing Plate M42", rawCost: 1.309231, hours: 0.001136, qty: 3050, priceUSD: 0.25 },
+        { name: "Large Nailing Plate M52", rawCost: 1.528182, hours: 0.001136, qty: 0, priceUSD: null },
+      ];
+      // Group 9: WZP Anchor Pin Fixing Plates
+      const g9 = [
+        { name: "WZP Anchor Pin Fixing Plate 1.3T", rawCost: 1.241525, hours: 0.001047, qty: 0, priceUSD: null },
+        { name: "WZP Anchor Pin Fixing Plate 2.5T", rawCost: 1.894048, hours: 0.001058, qty: 1006, priceUSD: 0.325 },
+        { name: "WZP Anchor Pin Fixing Plate 5T", rawCost: 2.437063, hours: 0.001078, qty: 1000, priceUSD: 0.43 },
+        { name: "WZP Anchor Pin Fixing Plate 10T", rawCost: 3.137095, hours: 0.001367, qty: 0, priceUSD: null },
+        { name: "WZP Anchor Pin Fixing Plate 20T", rawCost: 4.55299, hours: 0.001483, qty: 0, priceUSD: null },
+      ];
+
+      const groups = [
+        { name: "Lifting Clutches", products: g1 },
+        { name: "Cast in Loops", products: g2 },
+        { name: "Combination Pin Anchor Ring Clutches", products: g3 },
+        { name: "Spread Anchor Combination Ring Clutches", products: g4 },
+        { name: "Sealing Caps", products: g5 },
+        { name: "Pin Anchor Rubber Formers", products: g6 },
+        { name: "Spread Anchor Recess Formers", products: g7 },
+        { name: "Nailing Plates", products: g8 },
+        { name: "WZP Anchor Pin Fixing Plates", products: g9 },
+      ];
+
+      for (const g of groups) {
+        for (const p of g.products) {
+          p.priceCNY = p.priceUSD !== null ? p.priceUSD * this.exchangeRate : null;
+          p.annualRevenue = (p.priceUSD !== null && p.qty > 0) ? p.priceUSD * p.qty * this.exchangeRate : 0;
+        }
+      }
+
+      this.productGroups = groups;
+
+      this.employees = [
+        { id: 1, name: "HAKAM", position: "General Manager", basicSalary: 10000, isLabor: false },
+        { id: 2, name: "Abbi", position: "GM Assistant", basicSalary: 10000, isLabor: false },
+        { id: 3, name: "Lihua", position: "Factory Manager", basicSalary: 10000, isLabor: false },
+        { id: 4, name: "Ajiao", position: "Accountant", basicSalary: 10000, isLabor: false },
+        { id: 5, name: "Eva", position: "HR", basicSalary: 10000, isLabor: false },
+        { id: 6, name: "Welder", position: "Welder", basicSalary: 6438, isLabor: true },
+        { id: 7, name: "Laohe", position: "Labor (retired)", basicSalary: 4940, isLabor: true },
+        { id: 8, name: "Tangshu", position: "QC", basicSalary: 4465, isLabor: true },
+        { id: 9, name: "Jia", position: "Labor", basicSalary: 5465, isLabor: true },
+        { id: 10, name: "Tangenshu wife", position: "Labor", basicSalary: 3615, isLabor: true },
+        { id: 11, name: "Xiaoyan", position: "Machinery Man", basicSalary: 6500, isLabor: true },
+      ];
+    },
+
+    updateProductComputed() {
+      for (const g of this.productGroups) {
+        for (const p of g.products) {
+          p.priceCNY = p.priceUSD !== null && p.priceUSD !== undefined ? p.priceUSD * this.exchangeRate : null;
+          p.annualRevenue = (p.priceUSD !== null && p.priceUSD !== undefined && p.qty > 0) ? p.priceUSD * p.qty * this.exchangeRate : 0;
+        }
+      }
+    },
+
+    updateProductionPlan() {
+      const totalSales = this.totalActualSales;
+      if (totalSales <= 0) return;
+      for (const g of this.productGroups) {
+        for (const p of g.products) {
+          p.salesShare = totalSales > 0 ? (p.annualRevenue || 0) / totalSales : 0;
+          p.monthlyRevenue = p.salesShare * this.monthlySales;
+          p.qtyToProduce = (p.priceCNY > 0) ? Math.round(p.monthlyRevenue / p.priceCNY) : 0;
+          p.monthlyMaterialCost = p.qtyToProduce * p.rawCost;
+          p.monthlyLaborHours = p.qtyToProduce * p.hours;
+        }
+      }
+      // Update group summaries
+      for (const g of this.productGroups) {
+        g.producedCount = g.products.filter(p => p.qty > 0).length;
+        g.missingPrices = g.products.filter(p => p.priceUSD === null || p.priceUSD === undefined).length;
+        g.groupSales = g.products.reduce((s, p) => s + (p.annualRevenue || 0), 0);
+        g.totalQty = g.products.reduce((s, p) => s + (p.qty || 0), 0);
+      }
+    },
+
+    updateBudgetAuto() {
+      for (const b of this.budgets) {
+        if (b.auto && b.isReserve) {
+          if (b.key === 'rent3') b.amount = this.monthlyRent * this.rentMonths;
+          else if (b.key === 'electric3') b.amount = this.monthlyElectric * this.electricMonths;
+          else if (b.key === 'salary3') b.amount = this.totalPayroll * this.salaryMonths;
+        }
+      }
+    },
+
+    renderInvestmentChart() {
+      if (!this.$refs.investmentChart) return;
+      if (this.investmentChart) this.investmentChart.destroy();
+      const ctx = this.$refs.investmentChart.getContext('2d');
+      const labels = this.budgets.map(b => b.name);
+      const data = this.budgets.map(b => this.currency === 'USD' ? b.amount / this.exchangeRate : b.amount);
+      this.investmentChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: ['#2196F3', '#00BCD4', '#4CAF50', '#FF9800', '#9C27B0', '#FF3D71'],
+            borderColor: '#131821',
+            borderWidth: 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { color: '#8B9DB8', font: { size: 10 }, boxWidth: 10 } },
+            tooltip: {
+              callbacks: {
+                label: (c) => {
+                  const v = this.currency === 'USD' ? c.raw : c.raw;
+                  const sym = this.currency === 'USD' ? '$' : 'CNY ';
+                  return c.label + ': ' + sym + v.toLocaleString('en-US', {maximumFractionDigits: 0});
+                }
+              }
+            }
+          }
+        }
+      });
+    },
+
+    renderLaborChart() {
+      if (!this.$refs.laborChart) return;
+      if (this.laborChart) this.laborChart.destroy();
+      const ctx = this.$refs.laborChart.getContext('2d');
+      const used = Math.min(this.totalLaborHoursNeeded, this.availableHours);
+      const overtime = Math.max(0, this.totalLaborHoursNeeded - this.availableHours);
+      const free = Math.max(0, this.availableHours - this.totalLaborHoursNeeded);
+      this.laborChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Hours'],
+          datasets: [
+            { label: this.lang === 'cn' ? '\u5df2\u5229\u7528' : 'Utilized', data: [used], backgroundColor: '#00C853' },
+            { label: this.lang === 'cn' ? '\u52a0\u73ed' : 'Overtime', data: [overtime], backgroundColor: '#FF3D71' },
+            { label: this.lang === 'cn' ? '\u53ef\u7528' : 'Available', data: [free], backgroundColor: '#1E2A3A' },
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          scales: {
+            x: { stacked: true, grid: { color: '#1E2A3A' }, ticks: { color: '#4A5D75', font: { size: 10 } } },
+            y: { stacked: true, grid: { display: false }, ticks: { display: false } },
+          },
+          plugins: {
+            legend: { labels: { color: '#8B9DB8', font: { size: 10 }, boxWidth: 10 } },
+          }
+        }
+      });
+    },
+
+    exportData() {
+      const data = {
+        lang: this.lang,
+        currency: this.currency,
+        exchangeRate: this.exchangeRate,
+        workHoursPerDay: this.workHoursPerDay,
+        workDaysPerMonth: this.workDaysPerMonth,
+        totalInvestment: this.totalInvestment,
+        autoInvestment: this.autoInvestment,
+        monthlySales: this.monthlySales,
+        baseMonthlySales: this.baseMonthlySales,
+        salesMultiplier: this.salesMultiplier,
+        salaryModel: this.salaryModel,
+        modelA: this.modelA,
+        modelB: this.modelB,
+        modelC: this.modelC,
+        budgets: this.budgets,
+        productGroups: this.productGroups.map(g => ({
+          name: g.name,
+          products: g.products.map(p => ({
+            name: p.name, rawCost: p.rawCost, hours: p.hours, qty: p.qty, priceUSD: p.priceUSD,
+          }))
+        })),
+        employees: this.employees.map(e => ({
+          id: e.id, name: e.name, position: e.position, basicSalary: e.basicSalary, isLabor: e.isLabor,
+        })),
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'factory-case-study-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+
+    importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.lang) this.lang = data.lang;
+          if (data.currency) this.currency = data.currency;
+          if (data.exchangeRate) this.exchangeRate = data.exchangeRate;
+          if (data.workHoursPerDay) this.workHoursPerDay = data.workHoursPerDay;
+          if (data.workDaysPerMonth) this.workDaysPerMonth = data.workDaysPerMonth;
+          if (data.totalInvestment !== undefined) this.totalInvestment = data.totalInvestment;
+          if (data.autoInvestment !== undefined) this.autoInvestment = data.autoInvestment;
+          if (data.monthlySales) this.monthlySales = data.monthlySales;
+          if (data.baseMonthlySales) this.baseMonthlySales = data.baseMonthlySales;
+          if (data.salesMultiplier) this.salesMultiplier = data.salesMultiplier;
+          if (data.salaryModel) this.salaryModel = data.salaryModel;
+          if (data.modelA) this.modelA = data.modelA;
+          if (data.modelB) this.modelB = data.modelB;
+          if (data.modelC) this.modelC = data.modelC;
+          if (data.budgets) this.budgets = data.budgets;
+          if (data.employees) {
+            this.employees = data.employees.map(e => ({ ...e, basicSalary: Number(e.basicSalary), isLabor: Boolean(e.isLabor) }));
+          }
+          if (data.productGroups) {
+            for (const importedG of data.productGroups) {
+              const existingG = this.productGroups.find(g => g.name === importedG.name);
+              if (existingG && importedG.products) {
+                for (const importedP of importedG.products) {
+                  const existingP = existingG.products.find(p => p.name === importedP.name);
+                  if (existingP) {
+                    existingP.rawCost = Number(importedP.rawCost) || 0;
+                    existingP.hours = Number(importedP.hours) || 0;
+                    existingP.qty = Number(importedP.qty) || 0;
+                    existingP.priceUSD = importedP.priceUSD !== undefined ? (importedP.priceUSD !== null ? Number(importedP.priceUSD) : null) : null;
+                  }
+                }
+              }
+            }
+          }
+          this.updateProductComputed();
+          this.updateProductionPlan();
+          this.saveToStorage();
+          alert(this.lang === 'cn' ? '\u5bfc\u5165\u6210\u529f!' : 'Data imported successfully!');
+        } catch (err) {
+          alert((this.lang === 'cn' ? '\u5bfc\u5165\u5931\u8d25: ' : 'Import failed: ') + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    },
+
+    resetAll() {
+      const msg = this.lang === 'cn' ? '\u786e\u8ba4\u91cd\u7f6e\u6240\u6709\u6570\u636e\uff1f' : 'Reset all data to defaults?';
+      if (!confirm(msg)) return;
+      localStorage.removeItem('factory-case-study-data');
+      this.initData();
+      this.updateProductionPlan();
+      this.updateBudgetAuto();
+      this.totalInvestment = this.autoCalcInvestment;
+      this.monthlySales = Math.round(this.totalActualSales / 6);
+      this.baseMonthlySales = this.monthlySales;
+      this.salesMultiplier = 1;
+      this.saveToStorage();
+    },
+
+    saveToStorage() {
+      const data = {
+        lang: this.lang,
+        currency: this.currency,
+        exchangeRate: this.exchangeRate,
+        workHoursPerDay: this.workHoursPerDay,
+        workDaysPerMonth: this.workDaysPerMonth,
+        totalInvestment: this.totalInvestment,
+        autoInvestment: this.autoInvestment,
+        monthlySales: this.monthlySales,
+        baseMonthlySales: this.baseMonthlySales,
+        salesMultiplier: this.salesMultiplier,
+        salaryModel: this.salaryModel,
+        modelA: this.modelA,
+        modelB: this.modelB,
+        modelC: this.modelC,
+        budgets: this.budgets,
+        productGroups: this.productGroups.map(g => ({
+          name: g.name,
+          products: g.products.map(p => ({
+            name: p.name, rawCost: p.rawCost, hours: p.hours, qty: p.qty, priceUSD: p.priceUSD,
+          }))
+        })),
+        employees: this.employees.map(e => ({
+          id: e.id, name: e.name, position: e.position, basicSalary: e.basicSalary, isLabor: e.isLabor,
+        })),
+      };
+      localStorage.setItem('factory-case-study-data', JSON.stringify(data));
+    },
+
+    loadFromStorage() {
+      try {
+        const saved = localStorage.getItem('factory-case-study-data');
+        if (!saved) return false;
+        const data = JSON.parse(saved);
+        if (data.lang) this.lang = data.lang;
+        if (data.currency) this.currency = data.currency;
+        if (data.exchangeRate) this.exchangeRate = data.exchangeRate;
+        if (data.workHoursPerDay) this.workHoursPerDay = data.workHoursPerDay;
+        if (data.workDaysPerMonth) this.workDaysPerMonth = data.workDaysPerMonth;
+        if (data.totalInvestment !== undefined) this.totalInvestment = data.totalInvestment;
+        if (data.autoInvestment !== undefined) this.autoInvestment = data.autoInvestment;
+        if (data.monthlySales) this.monthlySales = data.monthlySales;
+        if (data.baseMonthlySales) this.baseMonthlySales = data.baseMonthlySales;
+        if (data.salesMultiplier !== undefined) this.salesMultiplier = data.salesMultiplier;
+        if (data.salaryModel) this.salaryModel = data.salaryModel;
+        if (data.modelA) this.modelA = data.modelA;
+        if (data.modelB) this.modelB = data.modelB;
+        if (data.modelC) this.modelC = data.modelC;
+        if (data.budgets) this.budgets = data.budgets;
+        if (data.employees) {
+          this.employees = data.employees.map(e => ({ ...e, basicSalary: Number(e.basicSalary), isLabor: Boolean(e.isLabor) }));
+        }
+        if (data.productGroups) {
+          for (const importedG of data.productGroups) {
+            const existingG = this.productGroups.find(g => g.name === importedG.name);
+            if (existingG && importedG.products) {
+              for (const importedP of importedG.products) {
+                const existingP = existingG.products.find(p => p.name === importedP.name);
+                if (existingP) {
+                  existingP.rawCost = Number(importedP.rawCost) || 0;
+                  existingP.hours = Number(importedP.hours) || 0;
+                  existingP.qty = Number(importedP.qty) || 0;
+                  existingP.priceUSD = importedP.priceUSD !== undefined ? (importedP.priceUSD !== null ? Number(importedP.priceUSD) : null) : null;
+                }
+              }
+            }
+          }
+        }
+        this.updateProductComputed();
+        return true;
+      } catch (e) {
+        console.error('Load error', e);
+        return false;
+      }
+    },
+
+    print() {
+      window.print();
+    },
+  },
+
+  mounted() {
+    this.initData();
+    const loaded = this.loadFromStorage();
+    if (!loaded) {
+      this.updateProductComputed();
+      this.totalInvestment = this.autoCalcInvestment;
+      this.monthlySales = Math.round(this.totalActualSales / 6);
+      this.baseMonthlySales = this.monthlySales;
+    }
+    this.updateProductionPlan();
+    this.updateBudgetAuto();
+    this.$nextTick(() => {
+      this.renderInvestmentChart();
+      this.renderLaborChart();
+    });
+    // Auto-save debounce
+    let timeout;
+    this.$watch(() => JSON.stringify({
+      lang: this.lang,
+      currency: this.currency,
+      exchangeRate: this.exchangeRate,
+      workHoursPerDay: this.workHoursPerDay,
+      workDaysPerMonth: this.workDaysPerMonth,
+      totalInvestment: this.totalInvestment,
+      autoInvestment: this.autoInvestment,
+      monthlySales: this.monthlySales,
+      baseMonthlySales: this.baseMonthlySales,
+      salesMultiplier: this.salesMultiplier,
+      salaryModel: this.salaryModel,
+      modelA: this.modelA,
+      modelB: this.modelB,
+      modelC: this.modelC,
+      budgets: this.budgets,
+      productGroups: this.productGroups,
+      employees: this.employees,
+    }), () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => this.saveToStorage(), 500);
+    }, { deep: true });
+  },
+}).mount('#app');
+</script>
+</body>
+</html>

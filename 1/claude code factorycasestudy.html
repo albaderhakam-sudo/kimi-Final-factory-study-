@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red Dragon Factory — Investment, Production & Salary Studio</title>
+<style>
+:root{
+  --bg-page:#0B0E13; --bg-card:#131821; --bg-input:#0D1117; --bg-hover:#1E2A3A;
+  --border-subtle:#1E2A3A; --border-active:#2D3F56;
+  --text-primary:#E8ECF1; --text-secondary:#8B9DB8; --text-muted:#4A5D75;
+  --positive:#00C853; --negative:#FF3D71; --amber:#FFB300;
+  --blue:#2196F3; --teal:#00BCD4; --orange:#FF9800; --purple:#B388FF;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg-page); color:var(--text-primary);
+  font-family:"Segoe UI",Roboto,system-ui,-apple-system,sans-serif;
+  font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--blue);text-decoration:none;}
+h1,h2,h3,h4{margin:0 0 .4em;font-weight:600;}
+h2{font-size:18px;letter-spacing:.2px;}
+h3{font-size:15px;color:var(--text-primary);}
+small,.muted{color:var(--text-muted);}
+.sec-sub{color:var(--text-secondary);font-size:12.5px;margin:-2px 0 14px;}
+.wrap{max-width:1240px;margin:0 auto;padding:0 18px 80px;}
+
+/* Header */
+header.app{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,#0B0E13 70%,rgba(11,14,19,.92));border-bottom:1px solid var(--border-subtle);}
+.hbar{max-width:1240px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;}
+.brand .logo{width:30px;height:30px;border-radius:7px;background:radial-gradient(circle at 30% 30%,#FF5A3D,#B3231a);box-shadow:0 0 14px rgba(255,90,61,.5);}
+.brand .ttl{font-size:15.5px;font-weight:700;}
+.brand .sub{font-size:11px;color:var(--text-muted);}
+.hctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.savedot{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+.savedot b{width:7px;height:7px;border-radius:50%;background:var(--positive);display:inline-block;}
+
+/* Controls */
+button,.btn{font-family:inherit;font-size:12.5px;cursor:pointer;border:1px solid var(--border-active);background:var(--bg-card);color:var(--text-primary);padding:6px 11px;border-radius:7px;transition:.12s;}
+button:hover,.btn:hover{background:var(--bg-hover);border-color:#3a5170;}
+button.primary{background:#13314e;border-color:#1d4a74;color:#cfe6ff;}
+button.ghost{background:transparent;}
+button.tiny{padding:3px 7px;font-size:11px;border-radius:6px;}
+button.on{background:#13314e;border-color:var(--blue);color:#cfe6ff;}
+.seg{display:inline-flex;border:1px solid var(--border-active);border-radius:8px;overflow:hidden;}
+.seg button{border:none;border-radius:0;border-right:1px solid var(--border-active);}
+.seg button:last-child{border-right:none;}
+input,select{font-family:inherit;font-size:13px;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-subtle);border-radius:6px;padding:5px 8px;outline:none;}
+input:focus,select:focus{border-color:var(--border-active);}
+input[type=number]{width:104px;}
+input.num-sm{width:78px;}
+input.txt{width:100%;}
+input.flag{border-color:var(--negative);background:#251015;}
+label.lbl{font-size:11px;color:var(--text-secondary);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px;}
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;padding:0;background:linear-gradient(90deg,var(--blue),var(--teal));cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#E8ECF1;border:3px solid var(--blue);box-shadow:0 1px 5px rgba(0,0,0,.5);}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#E8ECF1;border:3px solid var(--blue);}
+
+/* Rail */
+.rail{position:sticky;top:53px;z-index:40;background:rgba(15,20,28,.97);border:1px solid var(--border-subtle);border-radius:12px;padding:12px 16px;margin:14px 0;display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;backdrop-filter:blur(6px);}
+.rail .scn .seg button{font-size:11.5px;padding:5px 9px;}
+.rail .slidewrap{display:flex;flex-direction:column;gap:5px;}
+.rail .slidetop{display:flex;align-items:center;gap:10px;}
+.rail .salesbig{font-size:20px;font-weight:700;color:var(--blue);}
+.rail .vs{font-size:11.5px;color:var(--text-muted);}
+.rail input[type=range]{width:100%;}
+.tick{font-size:10.5px;color:var(--text-muted);display:flex;justify-content:space-between;}
+
+/* Nav */
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px;}
+nav.tabs a{font-size:12.5px;color:var(--text-secondary);padding:6px 12px;border:1px solid var(--border-subtle);border-radius:20px;}
+nav.tabs a:hover{background:var(--bg-hover);color:var(--text-primary);}
+
+/* Cards & layout */
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:14px;padding:18px 20px;margin:0 0 18px;}
+.card.section{scroll-margin-top:170px;}
+.grid{display:grid;gap:16px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.flex{display:flex;gap:14px;flex-wrap:wrap;}
+.between{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr;}.rail{grid-template-columns:1fr;}}
+
+/* KPI */
+.kpi{background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:12px;padding:13px 15px;}
+.kpi .k-l{font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;}
+.kpi .k-v{font-size:23px;font-weight:700;margin-top:3px;}
+.kpi .k-s{font-size:11.5px;color:var(--text-muted);margin-top:2px;}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--border-subtle);white-space:nowrap;}
+th:first-child,td:first-child{text-align:left;}
+th{color:var(--text-secondary);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;}
+tbody tr:hover{background:rgba(30,42,58,.4);}
+tr.grp td{background:#0f141c;color:var(--text-secondary);font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:.5px;}
+tr.subtot td{font-weight:600;color:var(--text-primary);border-top:1px solid var(--border-active);}
+tr.total td{font-weight:700;border-top:2px solid var(--border-active);background:#0f141c;}
+.scrollx{overflow-x:auto;}
+.tall{max-height:440px;overflow:auto;border:1px solid var(--border-subtle);border-radius:10px;}
+.pos{color:var(--positive);} .neg{color:var(--negative);} .am{color:var(--amber);} .bl{color:var(--blue);} .or{color:var(--orange);} .te{color:var(--teal);}
+.pill{display:inline-block;font-size:10.5px;padding:1px 7px;border-radius:10px;border:1px solid var(--border-active);color:var(--text-secondary);}
+.pill.emp{border-color:#2d4a6b;color:#9cc4ee;background:#10243a;}
+.pill.lab{border-color:#3a5a2d;color:#a7d98a;background:#14250f;}
+
+/* charts */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:11.5px;color:var(--text-secondary);}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+.barsH{display:flex;flex-direction:column;gap:7px;}
+.barRow{display:grid;grid-template-columns:120px 1fr 90px;gap:9px;align-items:center;font-size:12px;}
+.barLab{color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;}
+.barTrack{background:var(--bg-input);border-radius:6px;height:16px;overflow:hidden;border:1px solid var(--border-subtle);}
+.barFill{height:100%;border-radius:6px;}
+.barVal{text-align:right;color:var(--text-primary);}
+
+/* verdict */
+.verdict{border-radius:12px;padding:16px 18px;border:1px solid;}
+.verdict.good{background:rgba(0,200,83,.08);border-color:rgba(0,200,83,.4);}
+.verdict.bad{background:rgba(255,61,113,.08);border-color:rgba(255,61,113,.4);}
+.verdict .vh{font-size:17px;font-weight:700;}
+.note{font-size:12px;color:var(--text-secondary);background:var(--bg-input);border:1px solid var(--border-subtle);border-left:3px solid var(--amber);border-radius:8px;padding:9px 12px;margin:10px 0;}
+.alert{border-left-color:var(--negative);}
+.help{font-size:11.5px;color:var(--text-muted);}
+.tag{font-size:10px;color:var(--amber);border:1px solid var(--amber);border-radius:5px;padding:0 5px;margin-left:6px;text-transform:uppercase;letter-spacing:.4px;}
+.kv{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--border-subtle);font-size:12.5px;}
+.kv span:first-child{color:var(--text-secondary);}
+.kv b{font-weight:600;}
+.hr{height:1px;background:var(--border-subtle);margin:12px 0;border:none;}
+.foot{color:var(--text-muted);font-size:11.5px;text-align:center;padding:10px 0 0;}
+@media print{
+  header.app,.rail,nav.tabs,.noprint{display:none!important;}
+  body{background:#fff;color:#000;} .card{break-inside:avoid;border-color:#ccc;}
+  .wrap{max-width:none;}
+}
+</style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<header class="app">
+  <div class="hbar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div><div class="ttl" data-i18n="brand_title">Red Dragon Factory</div><div class="sub" data-i18n="brand_sub">Investment · Production · Salary Studio</div></div>
+    </div>
+    <div class="hctrl">
+      <div class="seg" id="langSeg" title="Language / 语言">
+        <button data-act="lang" data-v="en">EN</button>
+        <button data-act="lang" data-v="zh">中文</button>
+      </div>
+      <div class="seg" id="curSeg" data-i18n-title="cur_title" title="Display currency">
+        <button data-act="cur" data-v="CNY">CNY ¥</button>
+        <button data-act="cur" data-v="USD">USD $</button>
+      </div>
+      <div data-i18n-title="rate_title" title="USD→CNY exchange rate"><span class="help" data-i18n="rate">Rate</span> <input type="number" id="rate" class="num-sm" step="0.05"></div>
+      <div data-i18n-title="months_title" title="Projection months"><span class="help" data-i18n="months">Months</span> <input type="number" id="months" class="num-sm" step="1" min="1" max="36"></div>
+      <button data-act="reconcile" data-i18n="reconcile" data-i18n-title="reconcile_title" title="Set to historical 6-month actuals">Reconcile</button>
+      <button data-act="export" data-i18n="export">Export</button>
+      <button data-act="import" data-i18n="import">Import</button>
+      <button data-act="xlsxExport" data-i18n="xlsx_export" data-i18n-title="xlsx_export_title" title="Download all editable data as one Excel workbook">Excel ↓</button>
+      <button data-act="xlsxImport" data-i18n="xlsx_import" data-i18n-title="xlsx_import_title" title="Import an edited Excel workbook back into the dashboard">Excel ↑</button>
+      <button data-act="print" data-i18n="print">Print / PDF</button>
+      <button data-act="reset" data-i18n="reset" data-i18n-title="reset_title" title="Restore all defaults">Reset</button>
+      <span class="savedot"><b></b><span data-i18n="saved">saved</span></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- CONTROL RAIL -->
+  <div class="rail noprint">
+    <div class="scn">
+      <label class="lbl" data-i18n="scenario">Scenario</label>
+      <div class="seg" id="scnSeg">
+        <button data-act="scn" data-v="worst" data-i18n="worst">Worst</button>
+        <button data-act="scn" data-v="base" data-i18n="base">Base</button>
+        <button data-act="scn" data-v="best" data-i18n="best">Best</button>
+      </div>
+      <div style="margin-top:6px"><span class="help" data-i18n="flex">Flex ±</span> <input type="number" id="flex" class="num-sm" step="1" min="0" max="90">%</div>
+    </div>
+    <div class="slidewrap">
+      <div class="slidetop">
+        <label class="lbl" style="margin:0" data-i18n="monthly_sales_target">Monthly sales target</label>
+        <div class="salesbig" id="salesBig">—</div>
+        <input type="number" id="salesBox" step="1000">
+        <div class="vs" id="salesVs"></div>
+      </div>
+      <input type="range" id="salesSlider" min="0" max="1000000" step="1000">
+      <div class="tick" id="salesTicks"></div>
+    </div>
+    <div style="text-align:right">
+      <label class="lbl" data-i18n="base_monthly">Base monthly</label>
+      <div class="bl" id="baseMonthly" style="font-size:17px;font-weight:700"></div>
+      <div class="help" data-i18n="base_monthly_sub">last 6-mo ÷ 6</div>
+    </div>
+  </div>
+
+  <nav class="tabs noprint">
+    <a href="#m1" data-i18n="nav1">1 · Investment</a>
+    <a href="#m2" data-i18n="nav2">2 · Production</a>
+    <a href="#m3" data-i18n="nav3">3 · Products &amp; Data</a>
+    <a href="#m4" data-i18n="nav4">4 · Labor Capacity</a>
+    <a href="#m5" data-i18n="nav5">5 · Salary Model Lab</a>
+    <a href="#m6" data-i18n="nav6">6 · Costs &amp; Decision</a>
+  </nav>
+
+  <!-- KPIs -->
+  <div class="g4 grid" id="kpis"></div>
+
+  <!-- MODULE 1 -->
+  <div class="card section" id="m1">
+    <div class="between"><h2 data-i18n="m1_title">1 · Investment &amp; Allocation</h2><span class="tag" data-i18n="tag_editable">editable</span></div>
+    <div class="sec-sub" data-i18n="m1_sub">Put your total investment in, split it across the company's needs, and check it's enough to stand the factory up. Reserve buckets auto-size from live rent / payroll / material.</div>
+    <div class="grid g2">
+      <div>
+        <label class="lbl" data-i18n="m1_total_label">Total investment (you type it — no preset)</label>
+        <div class="flex" style="align-items:center">
+          <input type="number" id="invTotal" step="10000" style="width:180px;font-size:16px">
+          <button class="tiny" data-act="invFill" data-i18n="m1_match_needs" data-i18n-title="m1_match_needs_title" title="Set investment = total needs">Match needs</button>
+        </div>
+        <div class="help" style="margin-top:6px" data-i18n="m1_money_enters">Money enters the company, then divides into the buckets below.</div>
+        <div style="margin-top:14px" class="between">
+          <h3 data-i18n="m1_alloc_buckets">Allocation buckets</h3><button class="tiny" data-act="addBucket" data-i18n="m1_add_bucket">+ Add bucket</button>
+        </div>
+        <div class="scrollx"><table id="bucketTbl"></table></div>
+      </div>
+      <div>
+        <div id="m1out"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 2 -->
+  <div class="card section" id="m2">
+    <div class="between"><h2 data-i18n="m2_title">2 · Monthly Sales → Production Plan</h2></div>
+    <div class="sec-sub" data-i18n="m2_sub">Drag the sales slider at the top. For your chosen monthly sales, the historical product mix back-calculates how many of each part you must make, and what the material costs.</div>
+    <div id="m2out"></div>
+  </div>
+
+  <!-- MODULE 3 -->
+  <div class="card section" id="m3">
+    <div class="between"><h2 data-i18n="m3_title">3 · Products &amp; Data</h2><span class="tag" data-i18n="tag_editable">editable</span></div>
+    <div class="sec-sub" data-i18n="m3_sub">Your real catalogue — 60 items in 9 groups, 33 with sales. Raw cost is loaded CNY/pc (incl. plating, tools, packing). Prices are native USD; CNY revenue = USD × rate. Every cell is editable; add or remove items.</div>
+    <div id="m3alert"></div>
+    <div class="flex noprint" style="margin-bottom:10px">
+      <button class="tiny" data-act="addProd" data-i18n="m3_add_item">+ Add item</button>
+      <button class="tiny" data-act="csvTemplate" data-i18n="m3_csv_template">Download CSV template</button>
+      <button class="tiny" data-act="csvImport" data-i18n="m3_csv_import">Import CSV</button>
+      <label class="help" style="margin-left:auto;display:flex;align-items:center;gap:6px"><input type="checkbox" id="onlyProduced" style="width:auto"><span data-i18n="m3_only_produced"> only produced</span></label>
+    </div>
+    <div class="tall scrollx"><table id="prodTbl"></table></div>
+  </div>
+
+  <!-- MODULE 4 -->
+  <div class="card section" id="m4">
+    <div class="between"><h2 data-i18n="m4_title">4 · Labor Capacity &amp; Utilization</h2><span class="tag" data-i18n="tag_editable">editable</span></div>
+    <div class="sec-sub" data-i18n="m4_sub">Production hours/pc (from your data) × the monthly quantities = hours you need. Against your laborers' available hours, see how much capacity you're using and how far sales can grow before you must hire.</div>
+    <div class="flex" style="margin-bottom:10px">
+      <div><label class="lbl" data-i18n="m4_hours_day">Hours / day</label><input type="number" id="hoursDay" class="num-sm" step="0.5"></div>
+      <div><label class="lbl" data-i18n="m4_days_month">Days / month</label><input type="number" id="daysMonth" class="num-sm" step="1"></div>
+      <div class="help" style="align-self:flex-end" data-i18n="m4_hours_help">Default per laborer = hours/day × days/month. Each laborer's hours are editable in the Salary Lab roster.</div>
+    </div>
+    <div id="m4out"></div>
+  </div>
+
+  <!-- MODULE 5 -->
+  <div class="card section" id="m5">
+    <div class="between"><h2 data-i18n="m5_title">5 · Salary Model Lab</h2><span class="tag" data-i18n="tag_centerpiece">centerpiece</span></div>
+    <div class="sec-sub" data-i18n="m5_sub">Move off flat pay. Everyone has a <b>basic salary</b> (the floor). Pay rises as sales rise, falls back toward basic when sales fall, and steps up once sales pass a target. Pick a model, tune it, slide sales, and see each person's pay and the total payroll move.</div>
+
+    <div class="grid g2" style="margin-bottom:16px">
+      <div>
+        <h3 data-i18n="m5_choose_model">Choose a model</h3>
+        <div class="seg" id="modelSeg" style="flex-wrap:wrap">
+          <button data-act="model" data-v="0" data-i18n="model0_btn">0 · Fixed (today)</button>
+          <button data-act="model" data-v="A" data-i18n="modelA_btn">A · Profit-share</button>
+          <button data-act="model" data-v="B" data-i18n="modelB_btn">B · Stepped targets</button>
+          <button data-act="model" data-v="C" data-i18n="modelC_btn">C · Commission</button>
+          <button data-act="model" data-v="D" data-i18n="modelD_btn">D · Custom</button>
+        </div>
+        <div class="note" id="modelDesc"></div>
+      </div>
+      <div>
+        <h3 data-i18n="m5_tune_rule">Tune the rule</h3>
+        <div class="flex">
+          <div><label class="lbl" data-i18n="m5_basic_pct">Basic = % of current</label><input type="number" id="basicPct" class="num-sm" step="1" min="0" max="100">% <button class="tiny" data-act="applyBasic" data-i18n="apply">Apply</button></div>
+          <div><label class="lbl" data-i18n="m5_ref_sales">Reference sales S₀</label><input type="number" id="S0" step="1000"></div>
+        </div>
+        <div class="flex" style="margin-top:8px">
+          <div><label class="lbl" data-i18n="m5_accel_target">Accelerator target</label><input type="number" id="target" step="1000"></div>
+          <div><label class="lbl" data-i18n="m5_accel_mult">Accelerator ×</label><input type="number" id="accel" class="num-sm" step="0.05"></div>
+        </div>
+        <div class="help" style="margin-top:6px" data-i18n="m5_tune_help">At S₀ every variable model ≈ today's pay. Below S₀ pay falls toward basic; above the target it accelerates.</div>
+      </div>
+    </div>
+
+    <div class="between"><h3 data-i18n="m5_roster">Roster — Employees (admin) &amp; Labor (production)</h3>
+      <div class="flex"><button class="tiny" data-act="addEmp" data-v="Employee" data-i18n="m5_add_emp">+ Employee</button><button class="tiny" data-act="addEmp" data-v="Labor" data-i18n="m5_add_lab">+ Labor</button></div>
+    </div>
+    <div class="scrollx" style="margin-bottom:16px"><table id="empTbl"></table></div>
+
+    <div id="m5out"></div>
+  </div>
+
+  <!-- MODULE 6 -->
+  <div class="card section" id="m6">
+    <div class="between"><h2 data-i18n="m6_title">6 · Costs, Charts &amp; Decision</h2><span class="tag" data-i18n="tag_editable">editable</span></div>
+    <div class="sec-sub" data-i18n="m6_sub">Fixed costs, the picture in charts, and the two verdicts: is it profitable to run, and is your investment enough to start?</div>
+    <div class="flex" style="margin-bottom:14px">
+      <div><label class="lbl" data-i18n="m6_rent_month">Rent / month</label><input type="number" id="rent" step="100"></div>
+      <div><label class="lbl" data-i18n="m6_elec_month">Electricity / month</label><input type="number" id="elec" step="100"></div>
+      <div class="help" style="align-self:flex-end" data-i18n="m6_salaries_help">Salaries come from the model in §5 and react to sales.</div>
+    </div>
+    <div id="m6out"></div>
+  </div>
+
+  <div class="foot"><span data-i18n="footer">Red Dragon Factory studio · all figures editable · auto-saved to this browser · </span><span id="stamp"></span></div>
+</div>
+
+<input type="file" id="fileImport" accept="application/json" style="display:none">
+<input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
+<input type="file" id="xlsxFile" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none">
+
+<script>
+"use strict";
+/* ============================ DATA ============================ */
+const RATE_DEFAULT = 7.0;
+// products: group, item, raw(CNY/pc), hours(h/pc), qty(6mo), price(USD|null)
+const PRODUCTS = [
+ ["KK Lifting Clutch","1.3T",22.316,0.161955882352941,694,10.8],
+ ["KK Lifting Clutch","2.5T",37.097,0.169534615384615,4623,11.9],
+ ["KK Lifting Clutch","5T",74.942,0.215803373819163,2134,22.8],
+ ["KK Lifting Clutch","10T",188.416,0.362380952380952,1047,60.8],
+ ["KK Lifting Clutch","20T",455.147,0.739104895104895,221,128],
+ ["KK Lifting Clutch","32T",1087.471,4.57166666666667,24,500],
+ ["Cast in loop","0.8Tx210",1.17256203354298,0.550350404312669,0,null],
+ ["Cast in loop","1.2Tx225",1.60307175919732,0.575348655920738,0,null],
+ ["Cast in loop","1.6Tx235",1.98138034907903,0.593042080468551,0,null],
+ ["Cast in loop","1.6Tx330",2.55343327175698,0.66237684729064,0,null],
+ ["Cast in loop","1.6Tx460",3.29071423520924,0.804418546365915,0,null],
+ ["Cast in loop","2Tx280",2.83011782115856,0.640235606178811,0,null],
+ ["Cast in loop","2.5Tx315",3.52992980895916,0.726823671497584,0,null],
+ ["Cast in loop","2.5Tx460",4.63309041203894,0.936317244846657,0,null],
+ ["Cast in loop","4Tx340",5.45454195520566,1.07395820613346,0,null],
+ ["Cast in loop","5.2Tx360",8.04025938983674,1.38896028775596,0,null],
+ ["Cast in loop","5.2Tx460",9.49361688983674,1.6218599310607,0,null],
+ ["Cast in loop","6.3Tx390",11.5502368353118,1.72046199296199,0,null],
+ ["Cast in loop","8Tx460",17.9741190111425,2.35187912330327,0,null],
+ ["Cast in loop","10Tx520",24.13383003267,2.71388773388773,0,null],
+ ["Combination Pin Anchor Ring Clutch","2.5T",34.9844977536427,0.260985035808431,0,null],
+ ["Combination Pin Anchor Ring Clutch","5T",63.4803683999339,0.27635853384416,0,null],
+ ["Combination Pin Anchor Ring Clutch","10T",156.669747477145,0.619880952380952,0,null],
+ ["Spread Anchor Combination Ring Clutch","1.25T",26.594331494549,0.245033175863267,1133,6.8],
+ ["Spread Anchor Combination Ring Clutch","2.5T",45.8849878501019,0.327644772485368,445,14.9],
+ ["Sealing Cap","M12",0.0728601677974435,0.000192063492063492,29300,0.024],
+ ["Sealing Cap","M16",0.1263,0.000192063492063492,101220,0.028],
+ ["Sealing Cap","M20",0.171690454545455,0.000231818181818182,15963,null],
+ ["Sealing Cap","M24",0.195380921985816,0.000279432624113475,30255,0.047],
+ ["Sealing Cap","M30",0.187621931216931,0.00370499118165785,22000,null],
+ ["Pin Anchor Rubber Former","1.3T",4.170095,0.00297380952380952,1005,0.74],
+ ["Pin Anchor Rubber Former","2.5T",6.74894,0.00309047619047619,3511,1.2],
+ ["Pin Anchor Rubber Former","5T",13.5078166666667,0.00324603174603175,1507,2.4],
+ ["Pin Anchor Rubber Former","7.5T",25.2105,0.0045,104,4.36],
+ ["Pin Anchor Rubber Former","10T",25.6922,0.0045,305,4.46],
+ ["Pin Anchor Rubber Former","20T",60.77065,0.0045,0,null],
+ ["Spread Anchor Recess Former","1.25T",4.045095,0.0140055555555556,0,null],
+ ["Spread Anchor Recess Former","2.5T",5.467315,0.0224432624113475,150,1.3],
+ ["Spread Anchor Recess Former","5T",11.6103166666667,0.0141222222222222,0,null],
+ ["Spread Anchor Recess Former","10T",31.4422,0.0173380414312618,0,null],
+ ["Nailing Plate","M10",0.456875,0.000505,0,null],
+ ["Nailing Plate","M12",0.496875,0.000505,20110,0.1],
+ ["Nailing Plate","M16",0.537692307692308,0.000505,69806,0.103],
+ ["Nailing Plate","M20",0.587692307692308,0.000505,55144,0.106],
+ ["Nailing Plate","M24",0.6725,0.000505,20061,0.132],
+ ["Nailing Plate","M30",0.817142857142857,0.000699,10071,0.159],
+ ["Nailing Plate","M36",1.10538461538462,0.000699,5030,0.215],
+ ["Nailing Plate","Large M12",0.504285714285714,0.000568,0,null],
+ ["Nailing Plate","Large M16",0.549230769230769,0.000568,30020,0.112],
+ ["Nailing Plate","Large M20",0.559230769230769,0.000568,5110,0.119],
+ ["Nailing Plate","Large M24",0.725,0.000758,35089,0.144],
+ ["Nailing Plate","Large M30",0.863846153846154,0.000758,65268,0.17],
+ ["Nailing Plate","Large M36",1.20923076923077,0.001136,5082,0.23],
+ ["Nailing Plate","Large M42",1.30923076923077,0.001136,3050,0.25],
+ ["Nailing Plate","Large M52",1.52818181818182,0.001136,0,null],
+ ["WZP Anchor Pin Fixing Plate","1.3T",1.241525,0.00104666666666667,0,null],
+ ["WZP Anchor Pin Fixing Plate","2.5T",1.8940475,0.00105833333333333,1006,0.325],
+ ["WZP Anchor Pin Fixing Plate","5T",2.43706333333333,0.00107777777777778,1000,0.43],
+ ["WZP Anchor Pin Fixing Plate","10T",3.137095,0.00136666666666667,0,null],
+ ["WZP Anchor Pin Fixing Plate","20T",4.55299,0.00148333333333333,0,null],
+];
+const EMPLOYEES = [
+ ["HAKAM","General Manager","Employee",10000],
+ ["abbi","GM Assistant","Employee",10000],
+ ["Lihua","Factory Manager","Employee",10000],
+ ["Ajiao","Accountant","Employee",10000],
+ ["Eva","HR","Employee",10000],
+ ["Welder","Welder","Labor",6438],
+ ["Laohe","Labor (retired)","Labor",4940],
+ ["Tangshu","QC","Labor",4465],
+ ["Jia","Labor","Labor",5465],
+ ["Tangenshu wife","Labor","Labor",3615],
+ ["Xiaoyan","Machinery man","Labor",6500],
+];
+
+/* ============================ I18N ============================ */
+const I18N = {
+ en:{
+  doc_title:"Red Dragon Factory — Investment, Production & Salary Studio",
+  brand_title:"Red Dragon Factory", brand_sub:"Investment · Production · Salary Studio",
+  cur_title:"Display currency", rate:"Rate", rate_title:"USD→CNY exchange rate",
+  months:"Months", months_title:"Projection months",
+  reconcile:"Reconcile", reconcile_title:"Set to historical 6-month actuals",
+  export:"Export", import:"Import", print:"Print / PDF", reset:"Reset", reset_title:"Restore all defaults", saved:"saved",
+  xlsx_export:"Excel ↓", xlsx_import:"Excel ↑", xlsx_export_title:"Download all editable data as one Excel workbook", xlsx_import_title:"Import an edited Excel workbook back into the dashboard",
+  scenario:"Scenario", worst:"Worst", base:"Base", best:"Best", flex:"Flex ±",
+  monthly_sales_target:"Monthly sales target", base_monthly:"Base monthly", base_monthly_sub:"last 6-mo ÷ 6", vs_base:"vs base",
+  nav1:"1 · Investment", nav2:"2 · Production", nav3:"3 · Products & Data", nav4:"4 · Labor Capacity", nav5:"5 · Salary Model Lab", nav6:"6 · Costs & Decision",
+  tag_editable:"editable", tag_centerpiece:"centerpiece",
+  m1_title:"1 · Investment & Allocation",
+  m1_sub:"Put your total investment in, split it across the company's needs, and check it's enough to stand the factory up. Reserve buckets auto-size from live rent / payroll / material.",
+  m1_total_label:"Total investment (you type it — no preset)", m1_match_needs:"Match needs", m1_match_needs_title:"Set investment = total needs",
+  m1_money_enters:"Money enters the company, then divides into the buckets below.", m1_alloc_buckets:"Allocation buckets", m1_add_bucket:"+ Add bucket",
+  m2_title:"2 · Monthly Sales → Production Plan",
+  m2_sub:"Drag the sales slider at the top. For your chosen monthly sales, the historical product mix back-calculates how many of each part you must make, and what the material costs.",
+  m3_title:"3 · Products & Data",
+  m3_sub:"Your real catalogue — 60 items in 9 groups, 33 with sales. Raw cost is loaded CNY/pc (incl. plating, tools, packing). Prices are native USD; CNY revenue = USD × rate. Every cell is editable; add or remove items.",
+  m3_add_item:"+ Add item", m3_csv_template:"Download CSV template", m3_csv_import:"Import CSV", m3_only_produced:" only produced",
+  m4_title:"4 · Labor Capacity & Utilization",
+  m4_sub:"Production hours/pc (from your data) × the monthly quantities = hours you need. Against your laborers' available hours, see how much capacity you're using and how far sales can grow before you must hire.",
+  m4_hours_day:"Hours / day", m4_days_month:"Days / month",
+  m4_hours_help:"Default per laborer = hours/day × days/month. Each laborer's hours are editable in the Salary Lab roster.",
+  m5_title:"5 · Salary Model Lab",
+  m5_sub:"Move off flat pay. Everyone has a <b>basic salary</b> (the floor). Pay rises as sales rise, falls back toward basic when sales fall, and steps up once sales pass a target. Pick a model, tune it, slide sales, and see each person's pay and the total payroll move.",
+  m5_choose_model:"Choose a model",
+  model0_btn:"0 · Fixed (today)", modelA_btn:"A · Profit-share", modelB_btn:"B · Stepped targets", modelC_btn:"C · Commission", modelD_btn:"D · Custom",
+  m5_tune_rule:"Tune the rule", m5_basic_pct:"Basic = % of current", apply:"Apply", m5_ref_sales:"Reference sales S₀",
+  m5_accel_target:"Accelerator target", m5_accel_mult:"Accelerator ×",
+  m5_tune_help:"At S₀ every variable model ≈ today's pay. Below S₀ pay falls toward basic; above the target it accelerates.",
+  m5_roster:"Roster — Employees (admin) & Labor (production)", m5_add_emp:"+ Employee", m5_add_lab:"+ Labor",
+  m5_d_linear:"Linear weight", m5_d_pool:"Pool % of sales>S₀",
+  m6_title:"6 · Costs, Charts & Decision",
+  m6_sub:"Fixed costs, the picture in charts, and the two verdicts: is it profitable to run, and is your investment enough to start?",
+  m6_rent_month:"Rent / month", m6_elec_month:"Electricity / month", m6_salaries_help:"Salaries come from the model in §5 and react to sales.",
+  footer:"Red Dragon Factory studio · all figures editable · auto-saved to this browser · ",
+  kpi_monthly_sales:"Monthly sales", kpi_material_cost:"Material cost", kpi_payroll:"Payroll", kpi_net_profit:"Net profit /mo",
+  of_sales:"of sales", margin:"margin", fixed_word:"fixed", model_word:"Model",
+  bucket_h_bucket:"Bucket", bucket_h_mode:"Mode", bucket_h_value:"Value / Months", bucket_h_basis:"Basis", bucket_h_amount:"Amount",
+  mode_fixed:"Fixed", mode_months:"Months ×", total_needs:"Total needs", mo_suffix:"mo",
+  basis_rent:"rent", basis_payroll:"payroll", basis_material:"material", basis_elec:"elec",
+  prod_h_group:"Group", prod_h_item:"Item", prod_h_raw:"Raw CNY/pc", prod_h_hours:"Hours/pc", prod_h_qty:"Qty 6-mo", prod_h_price:"Price USD", prod_h_sales:"Sales 6-mo", missing:"missing",
+  m3alert_miss:"{0} item(s) sell but have no price: {1}. They make material & use labor but earn no revenue until you fill the price (red cells).",
+  m3alert_ok:"All selling items have prices. Data reconciles to the 6-month actuals.",
+  emp_h_name:"Name", emp_h_position:"Position", emp_h_group:"Group", emp_h_current:"Current /mo", emp_h_basic:"Basic (floor)", emp_h_hours:"Hours/mo", emp_h_pay_now:"Pay @ now",
+  group_employee:"Employee", group_labor:"Labor", totals:"Totals", ppl:"ppl", h_suffix:"h",
+  m1_total_needs_sum:"Total needs (sum of buckets)", m1_your_investment:"Your investment", surplus:"Surplus", shortfall:"Shortfall",
+  m1_reserve_cash:"Reserve cash (rent+salary+utilities)", m1_burn_zero:"Burn at zero sales (rent+elec+basic pay)", m1_runway_zero:"Runway at zero sales", months_unit:"months",
+  m1_enough:"ENOUGH TO START", m1_not_enough:"NOT ENOUGH YET",
+  m1_enough_help:"Your investment covers all needs with {0} to spare, and reserves give {1} months of runway if sales were zero.",
+  m1_not_enough_help:"You are {0} short of the {1} the buckets require. Raise the investment or trim a bucket.",
+  m2_h_group_item:"Group / Item", m2_h_mix:"Mix %", m2_h_make:"Make (qty/mo)", m2_h_revenue:"Revenue/mo", m2_h_material:"Material/mo", m2_h_hours:"Hours/mo",
+  m2_total_make:"Total — make to hit {0}", m2_rev_by_group:"Revenue by group at {0}/mo",
+  m2_items_produce:"Items you must produce", pcs_mo:"pcs/mo", m2_material_buy:"Material to buy", m2_hours_needed:"Production hours needed", m2_gross_margin:"Gross margin (sales − material)",
+  m2_note:"Quantities scale with the slider: each item keeps its share of historical revenue, so the mix stays realistic while the volume flexes with your sales target.",
+  m2_plan_title:"Production plan (per month)",
+  m4_utilization:"Utilization", m4_shortfall:"Shortfall", m4_headroom:"Headroom", m4_of_hmo:"{0} of {1} h/mo", m4_overtime_hire:"overtime / hire needed", m4_spare_hours:"spare labor hours",
+  m4_capacity_ceiling:"Capacity ceiling", m4_sales_100:"sales where labor hits 100%", m4_hours_by_group:"Hours by group at {0}/mo",
+  m4_producing_laborers:"Producing laborers", m4_avail_hours:"Available hours / month", m4_req_hours:"Required hours / month", m4_at_base_use:"At base sales you use", m4_of_capacity:"of capacity",
+  m4_over_note:"You are over capacity at this sales level — you would need overtime or more laborers to physically produce it.",
+  m4_under_note:"You can grow sales to <b>{0}/mo</b> (≈ {1}× base) before current labor hits 100%. Push the slider to +20% / +30% to watch utilization climb.",
+  m5_h_model:"Model", m5_h_payroll_mo:"Payroll /mo", m5_h_pct_sales:"% of sales", m5_h_net_mo:"Net profit /mo", m5_h_vs_fixed:"vs Fixed",
+  modelname_0:"Fixed", modelname_A:"Profit-share", modelname_B:"Stepped", modelname_C:"Commission", modelname_D:"Custom",
+  m5_payroll_worst:"Payroll @ worst ({0})", m5_payroll_base:"Payroll @ base ({0})", m5_payroll_best:"Payroll @ best ({0})", m5_fixed_always:"Fixed-pay would always cost",
+  m5_owner_view:"Owner view — payroll & profit by model", m5_at_mo:"(at {0}/mo)", m5_downside:"Downside protection — {0}",
+  m5_downside_note:"A variable model pays less when sales fall (toward the basic floor) and more when they rise — that swing is the cash a fixed payroll can't give back.",
+  m5_payroll_vs_sales:"Payroll & profit vs monthly sales",
+  m5_chart_help:"Amber line = current sales. Orange = today's fixed payroll (flat). Teal = chosen model's payroll. Green = net profit.",
+  m5_emp_view:"Employee view — today vs new", m5_emp_view_help:"(your convincing tool — print per person)",
+  m5_h_person:"Person", m5_h_group:"Group", m5_h_today:"Today", m5_h_new_at:"New @ {0}", m5_h_delta:"Δ", m5_h_sales_match:"Sales to match today",
+  m5_emp_note:"\"Sales to match today\" is the monthly sales level where this person earns at least their current pay under the chosen model. Below it they earn less (down to basic); above it they earn more than today.",
+  m5_model_payroll:"Model {0} payroll", m5_fixed_payroll:"Fixed payroll", m5_net_profit:"Net profit",
+  m6_materials:"Materials", m6_salaries:"Salaries", m6_rent:"Rent", m6_electricity:"Electricity", m6_cost_breakdown:"Monthly cost breakdown at {0}/mo",
+  m6_sales:"Sales", m6_minus_material:"− Material", m6_minus_payroll:"− Payroll ({0})", m6_minus_rent_elec:"− Rent + Electricity", m6_eq_net:"= Net profit /mo", m6_over_months:"Over {0} months",
+  m6_profitable:"PROFITABLE TO OPERATE", m6_loss:"OPERATING AT A LOSS",
+  m6_profitable_help:"At {0}/mo sales the factory earns {1}/mo ({2} margin).", m6_loss_help:"At {0}/mo sales the factory loses {1}/mo. Raise sales, change the salary model, or cut cost.",
+  m6_inv_enough:"INVESTMENT ENOUGH TO START", m6_inv_not_enough:"INVESTMENT NOT ENOUGH",
+  m6_inv_enough_help:"{0} covers the {1} of needs with {2} months runway at zero sales.", m6_inv_not_enough_help:"Need {0}; you entered {1}. Set it in §1.",
+  m6_ground_truth:"Ground-truth reconciliation", m6_6mo_actuals:"(6-mo actuals)",
+  m6_gt_fixed:"Fixed (rent 68k + elec 30k + salaries)", m6_gt_net:"Net profit",
+  m6_gt_help:"From your embedded per-item data at rate {0}. Matches the documented 2,017,193 / 1,031,503 / 399,152.",
+  modeldesc_0:"<b>Model 0 — Fixed (today).</b> Everyone is paid their current salary no matter what sales do. The baseline you are moving away from — full cost even when sales fall.",
+  modeldesc_A:"<b>Model A — Profit-share.</b> pay = basic + variable, where the variable tracks sales smoothly (variable × sales ÷ S₀) and is shared out by each person's variable budget. Above the accelerator target it is multiplied. Predictable and fair.",
+  modeldesc_B:"<b>Model B — Stepped targets.</b> The variable portion jumps in steps as sales cross thresholds (e.g. ×0.4 / ×0.7 / ×1.0 / ×1.4 / ×1.85). A strong \"cross the line and your pay jumps\" signal.",
+  modeldesc_C:"<b>Model C — Commission.</b> A pool = commission% × monthly sales is shared by variable budget, with the % stepping up at higher sales. Ties pay to the size of revenue — biggest upside, most protective when sales fall.",
+  modeldesc_D:"<b>Model D — Custom.</b> Blend a linear profit-share part and a pool-of-sales-above-S₀ part with your own weights below."
+ },
+ zh:{
+  doc_title:"红龙工厂 — 投资、生产与薪资工作台",
+  brand_title:"红龙工厂", brand_sub:"投资 · 生产 · 薪资工作台",
+  cur_title:"显示货币", rate:"汇率", rate_title:"美元→人民币 汇率",
+  months:"月数", months_title:"预测月数",
+  reconcile:"对账", reconcile_title:"设为历史6个月实际值",
+  export:"导出", import:"导入", print:"打印 / PDF", reset:"重置", reset_title:"恢复所有默认值", saved:"已保存",
+  xlsx_export:"Excel ↓", xlsx_import:"Excel ↑", xlsx_export_title:"将所有可编辑数据导出为一个 Excel 工作簿", xlsx_import_title:"将编辑后的 Excel 工作簿导入到看板",
+  scenario:"情景", worst:"最差", base:"基准", best:"最好", flex:"浮动 ±",
+  monthly_sales_target:"月销售目标", base_monthly:"基准月销售", base_monthly_sub:"近6个月 ÷ 6", vs_base:"对比基准",
+  nav1:"1 · 投资", nav2:"2 · 生产", nav3:"3 · 产品与数据", nav4:"4 · 产能", nav5:"5 · 薪资模型实验室", nav6:"6 · 成本与决策",
+  tag_editable:"可编辑", tag_centerpiece:"核心",
+  m1_title:"1 · 投资与分配",
+  m1_sub:"输入您的总投资额，按公司各项需求进行分配，并检查是否足以建立工厂。储备项会根据实时的租金 / 薪资 / 材料自动计算。",
+  m1_total_label:"总投资额（由您输入 — 无预设值）", m1_match_needs:"匹配需求", m1_match_needs_title:"将投资额设为总需求",
+  m1_money_enters:"资金进入公司后，再分配到下面的各个用途。", m1_alloc_buckets:"资金分配项", m1_add_bucket:"+ 添加项",
+  m2_title:"2 · 月销售额 → 生产计划",
+  m2_sub:"拖动顶部的销售滑块。根据您选定的月销售额，历史产品结构会反算出每种零件需生产的数量，以及相应的材料成本。",
+  m3_title:"3 · 产品与数据",
+  m3_sub:"您的真实产品目录 — 9个类别共60项，其中33项有销售。原料成本为综合成本（人民币/件，含电镀、工具、包装）。价格以美元计；人民币营收 = 美元 × 汇率。每个单元格均可编辑，可增删项目。",
+  m3_add_item:"+ 添加项目", m3_csv_template:"下载CSV模板", m3_csv_import:"导入CSV", m3_only_produced:" 仅显示已生产",
+  m4_title:"4 · 产能与利用率",
+  m4_sub:"单件生产工时（来自您的数据）× 月产量 = 所需工时。对比工人的可用工时，查看产能利用率，以及销售在需要招人之前还能增长多少。",
+  m4_hours_day:"每日工时", m4_days_month:"每月天数",
+  m4_hours_help:"每位工人默认 = 每日工时 × 每月天数。每位工人的工时可在薪资实验室的名册中编辑。",
+  m5_title:"5 · 薪资模型实验室",
+  m5_sub:"摆脱固定工资。每个人都有<b>基本工资</b>（下限）。销售上升时薪资上涨，销售下降时回落至基本工资，销售超过目标时阶梯式上调。选择一个模型，调整参数，拖动销售额，查看每个人的薪资和工资总额的变化。",
+  m5_choose_model:"选择模型",
+  model0_btn:"0 · 固定（当前）", modelA_btn:"A · 利润分成", modelB_btn:"B · 阶梯目标", modelC_btn:"C · 提成", modelD_btn:"D · 自定义",
+  m5_tune_rule:"调整规则", m5_basic_pct:"基本工资 = 当前的%", apply:"应用", m5_ref_sales:"基准销售额 S₀",
+  m5_accel_target:"加速目标", m5_accel_mult:"加速倍数 ×",
+  m5_tune_help:"在 S₀ 处，每种浮动模型 ≈ 当前薪资。低于 S₀ 时薪资向基本工资回落；高于目标时加速上涨。",
+  m5_roster:"名册 — 管理员工（行政）与 生产工人", m5_add_emp:"+ 管理员工", m5_add_lab:"+ 生产工人",
+  m5_d_linear:"线性权重", m5_d_pool:"销售超 S₀ 部分的资金池%",
+  m6_title:"6 · 成本、图表与决策",
+  m6_sub:"固定成本、图表概览，以及两个结论：经营是否盈利，以及您的投资是否足以启动？",
+  m6_rent_month:"月租金", m6_elec_month:"月电费", m6_salaries_help:"薪资来自第5节的模型，并随销售变化。",
+  footer:"红龙工厂工作台 · 所有数据可编辑 · 自动保存到本浏览器 · ",
+  kpi_monthly_sales:"月销售额", kpi_material_cost:"材料成本", kpi_payroll:"工资总额", kpi_net_profit:"月净利润",
+  of_sales:"占销售", margin:"利润率", fixed_word:"固定", model_word:"模型",
+  bucket_h_bucket:"用途", bucket_h_mode:"方式", bucket_h_value:"金额 / 月数", bucket_h_basis:"基准", bucket_h_amount:"金额",
+  mode_fixed:"固定", mode_months:"月数 ×", total_needs:"总需求", mo_suffix:"月",
+  basis_rent:"租金", basis_payroll:"工资", basis_material:"材料", basis_elec:"电费",
+  prod_h_group:"类别", prod_h_item:"项目", prod_h_raw:"原料 元/件", prod_h_hours:"工时/件", prod_h_qty:"数量 6月", prod_h_price:"价格 USD", prod_h_sales:"销售 6月", missing:"缺失",
+  m3alert_miss:"{0} 项有销售但无价格：{1}。它们会消耗材料与工时，但在您填入价格（红色单元格）之前不产生营收。",
+  m3alert_ok:"所有在售项目均已定价。数据与6个月实际值一致。",
+  emp_h_name:"姓名", emp_h_position:"职位", emp_h_group:"组别", emp_h_current:"当前 /月", emp_h_basic:"基本（下限）", emp_h_hours:"工时/月", emp_h_pay_now:"当前薪资",
+  group_employee:"管理", group_labor:"生产", totals:"合计", ppl:"人", h_suffix:"小时",
+  m1_total_needs_sum:"总需求（各项之和）", m1_your_investment:"您的投资", surplus:"盈余", shortfall:"缺口",
+  m1_reserve_cash:"储备现金（租金+薪资+水电）", m1_burn_zero:"零销售时月支出（租金+电费+基本工资）", m1_runway_zero:"零销售时可维持时间", months_unit:"个月",
+  m1_enough:"足以启动", m1_not_enough:"尚不足够",
+  m1_enough_help:"您的投资可覆盖所有需求，并结余 {0}，若销售为零，储备可维持 {1} 个月。",
+  m1_not_enough_help:"您距各项所需的 {1} 还差 {0}。请增加投资或削减某一项。",
+  m2_h_group_item:"类别 / 项目", m2_h_mix:"占比 %", m2_h_make:"生产（数量/月）", m2_h_revenue:"营收/月", m2_h_material:"材料/月", m2_h_hours:"工时/月",
+  m2_total_make:"合计 — 为达成 {0} 需生产", m2_rev_by_group:"各类别营收（按 {0}/月）",
+  m2_items_produce:"需生产的数量", pcs_mo:"件/月", m2_material_buy:"需采购材料", m2_hours_needed:"所需生产工时", m2_gross_margin:"毛利（销售 − 材料）",
+  m2_note:"数量随滑块变化：每项保持其历史营收占比，因此产品结构保持真实，而总量随您的销售目标浮动。",
+  m2_plan_title:"生产计划（每月）",
+  m4_utilization:"产能利用率", m4_shortfall:"缺口", m4_headroom:"余量", m4_of_hmo:"{0} / {1} 工时/月", m4_overtime_hire:"需加班 / 招人", m4_spare_hours:"闲置工时",
+  m4_capacity_ceiling:"产能上限", m4_sales_100:"工人满负荷时的销售额", m4_hours_by_group:"各类别工时（按 {0}/月）",
+  m4_producing_laborers:"生产工人数", m4_avail_hours:"每月可用工时", m4_req_hours:"每月所需工时", m4_at_base_use:"在基准销售下使用", m4_of_capacity:"的产能",
+  m4_over_note:"在此销售水平下您已超出产能 — 需要加班或增加工人才能实际生产。",
+  m4_under_note:"在现有工人满负荷之前，销售可增长至 <b>{0}/月</b>（≈ 基准的 {1} 倍）。拖动滑块至 +20% / +30% 查看利用率上升。",
+  m5_h_model:"模型", m5_h_payroll_mo:"工资总额/月", m5_h_pct_sales:"占销售%", m5_h_net_mo:"净利润/月", m5_h_vs_fixed:"对比固定",
+  modelname_0:"固定", modelname_A:"利润分成", modelname_B:"阶梯", modelname_C:"提成", modelname_D:"自定义",
+  m5_payroll_worst:"工资总额 @ 最差（{0}）", m5_payroll_base:"工资总额 @ 基准（{0}）", m5_payroll_best:"工资总额 @ 最好（{0}）", m5_fixed_always:"固定工资始终支出",
+  m5_owner_view:"老板视角 — 各模型的工资与利润", m5_at_mo:"（按 {0}/月）", m5_downside:"下行保护 — {0}",
+  m5_downside_note:"浮动模型在销售下降时少付（向基本工资回落），上升时多付 — 这一弹性正是固定工资无法回收的现金。",
+  m5_payroll_vs_sales:"工资与利润 对比 月销售额",
+  m5_chart_help:"琥珀色线 = 当前销售。橙色 = 当前固定工资（水平）。青色 = 所选模型的工资。绿色 = 净利润。",
+  m5_emp_view:"员工视角 — 当前 对比 新方案", m5_emp_view_help:"（您的说服工具 — 可按人打印）",
+  m5_h_person:"人员", m5_h_group:"组别", m5_h_today:"当前", m5_h_new_at:"新 @ {0}", m5_h_delta:"Δ", m5_h_sales_match:"达到当前薪资所需销售",
+  m5_emp_note:"「达到当前薪资所需销售」是指在所选模型下，此人薪资至少达到当前水平所需的月销售额。低于此值时薪资更低（直至基本工资）；高于此值时薪资高于当前。",
+  m5_model_payroll:"模型 {0} 工资", m5_fixed_payroll:"固定工资", m5_net_profit:"净利润",
+  m6_materials:"材料", m6_salaries:"薪资", m6_rent:"租金", m6_electricity:"电费", m6_cost_breakdown:"月成本构成（按 {0}/月）",
+  m6_sales:"销售额", m6_minus_material:"− 材料", m6_minus_payroll:"− 工资（{0}）", m6_minus_rent_elec:"− 租金 + 电费", m6_eq_net:"= 月净利润", m6_over_months:"{0} 个月合计",
+  m6_profitable:"经营盈利", m6_loss:"经营亏损",
+  m6_profitable_help:"在 {0}/月 销售下，工厂每月盈利 {1}（利润率 {2}）。", m6_loss_help:"在 {0}/月 销售下，工厂每月亏损 {1}。请提高销售、更换薪资模型或削减成本。",
+  m6_inv_enough:"投资足以启动", m6_inv_not_enough:"投资不足",
+  m6_inv_enough_help:"{0} 可覆盖 {1} 的需求，零销售时有 {2} 个月的资金维持时间。", m6_inv_not_enough_help:"需要 {0}；您输入了 {1}。请在第1节设置。",
+  m6_ground_truth:"实际数据对账", m6_6mo_actuals:"（6个月实际）",
+  m6_gt_fixed:"固定（租金6.8万 + 电费3万 + 薪资）", m6_gt_net:"净利润",
+  m6_gt_help:"来自您嵌入的逐项数据，汇率 {0}。与记录的 2,017,193 / 1,031,503 / 399,152 一致。",
+  modeldesc_0:"<b>模型 0 — 固定（当前）。</b> 无论销售如何，每个人都领取当前工资。这是您正要摆脱的基准 — 即使销售下降仍需全额支出。",
+  modeldesc_A:"<b>模型 A — 利润分成。</b> 薪资 = 基本 + 浮动，浮动部分平滑跟随销售（浮动 × 销售 ÷ S₀），并按每人的浮动额度分配。超过加速目标后再乘以系数。可预测且公平。",
+  modeldesc_B:"<b>模型 B — 阶梯目标。</b> 浮动部分随销售跨越阈值而阶梯式跳升（如 ×0.4 / ×0.7 / ×1.0 / ×1.4 / ×1.85）。强烈传递「越过目标线，薪资就跳升」的信号。",
+  modeldesc_C:"<b>模型 C — 提成。</b> 资金池 = 提成% × 月销售，按浮动额度分配，且销售越高提成%越高。将薪资与营收规模挂钩 — 上行空间最大，销售下降时保护性最强。",
+  modeldesc_D:"<b>模型 D — 自定义。</b> 用您下方设定的权重，混合「线性利润分成」与「销售超 S₀ 部分的资金池」两部分。"
+ }
+};
+function t(k){ const L=I18N[state.ui.lang]||I18N.en; let s=(k in L)?L[k]:(k in I18N.en?I18N.en[k]:k); for(let i=1;i<arguments.length;i++){ s=s.split("{"+(i-1)+"}").join(arguments[i]); } return s; }
+const GROUP_ZH={"KK Lifting Clutch":"KK 起重吊扣","Cast in loop":"预埋吊环","Combination Pin Anchor Ring Clutch":"组合销锚环吊扣","Spread Anchor Combination Ring Clutch":"展开锚组合环吊扣","Sealing Cap":"密封盖","Pin Anchor Rubber Former":"销锚橡胶成型件","Spread Anchor Recess Former":"展开锚预留孔模","Nailing Plate":"钉板","WZP Anchor Pin Fixing Plate":"WZP 锚销固定板"};
+const POS_ZH={"General Manager":"总经理","GM Assistant":"总经理助理","Factory Manager":"厂长","Accountant":"会计","HR":"人力资源","Welder":"焊工","Labor (retired)":"工人（返聘）","QC":"质检","Labor":"工人","Machinery man":"机修工"};
+const BUCKET_ZH={"Machinery & equipment":"机器与设备","Assets / fit-out":"资产 / 装修","Raw materials (working capital)":"原材料（流动资金）","Rent reserve":"租金储备","Salary reserve":"薪资储备","Utilities reserve":"水电储备","Contingency":"应急储备","New bucket":"新分配项"};
+function tGroup(g){ return (state.ui.lang==="zh"&&GROUP_ZH[g])?GROUP_ZH[g]:g; }
+function tPos(p){ return (state.ui.lang==="zh"&&POS_ZH[p])?POS_ZH[p]:p; }
+function tBucket(n){ return (state.ui.lang==="zh"&&BUCKET_ZH[n])?BUCKET_ZH[n]:n; }
+function applyStaticI18n(){
+  document.documentElement.lang = state.ui.lang==="zh"?"zh":"en";
+  document.title = t("doc_title");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.innerHTML = t(el.getAttribute("data-i18n")); });
+  document.querySelectorAll("[data-i18n-title]").forEach(el=>{ el.title = t(el.getAttribute("data-i18n-title")); });
+}
+
+/* ============================ DEFAULT STATE ============================ */
+let UID = 1; const uid = p => (p||"x")+(UID++);
+function defaultState(){
+  UID = 1;
+  const products = PRODUCTS.map(r=>({id:uid("p"),group:r[0],item:r[1],raw:r[2],hours:r[3],qty:r[4],price:r[5]}));
+  const employees = EMPLOYEES.map(r=>({id:uid("e"),name:r[0],position:r[1],group:r[2],current:r[3],basic:Math.round(r[3]*0.6),hoursMonth:208,prod:r[2]==="Labor"}));
+  const rev6 = products.reduce((a,p)=>a+(p.price!=null?p.qty*p.price*RATE_DEFAULT:0),0);
+  const base = Math.round(rev6/6);
+  return {
+    ui:{cur:"CNY",rate:RATE_DEFAULT,months:6,lang:"en"},
+    sales:{value:base, flex:35},
+    products, employees,
+    labor:{hoursDay:8, daysMonth:26},
+    costs:{rentMonthly:15417, elecMonthly:5000},
+    salary:{model:"0", basicPct:60, S0:base, target:Math.round(base*1.34), accel:1.5,
+            stepTiers:[[0,0.40],[0.70,0.70],[1.00,1.00],[1.25,1.40],[1.55,1.85]],
+            commMul:[[0,0],[1.00,1.0],[1.25,1.6],[1.55,2.3]],
+            dLinear:1.0, dPool:0.10},
+    invest:{total:0, buckets:[
+      {id:uid("b"),name:"Machinery & equipment",mode:"fixed",value:250000,months:0,basis:"none"},
+      {id:uid("b"),name:"Assets / fit-out",mode:"fixed",value:120000,months:0,basis:"none"},
+      {id:uid("b"),name:"Raw materials (working capital)",mode:"months",value:0,months:2,basis:"material"},
+      {id:uid("b"),name:"Rent reserve",mode:"months",value:0,months:3,basis:"rent"},
+      {id:uid("b"),name:"Salary reserve",mode:"months",value:0,months:3,basis:"payroll"},
+      {id:uid("b"),name:"Utilities reserve",mode:"months",value:0,months:3,basis:"elec"},
+      {id:uid("b"),name:"Contingency",mode:"fixed",value:80000,months:0,basis:"none"},
+    ]}
+  };
+}
+
+/* ============================ PERSIST ============================ */
+const NS="rdf_studio_v1";
+let state = load() || defaultState();
+if(!state.ui.lang) state.ui.lang="en";
+function load(){ try{const s=localStorage.getItem(NS);return s?JSON.parse(s):null;}catch(e){return null;} }
+function save(){ try{localStorage.setItem(NS,JSON.stringify(state));}catch(e){} }
+function clone(o){return JSON.parse(JSON.stringify(o));}
+
+/* ============================ HELPERS ============================ */
+const $=id=>document.getElementById(id);
+const D={}; // derived
+function setVal(id,v){const e=$(id); if(e && document.activeElement!==e) e.value=v;} // skip the field being typed in
+function nf(v,dec=0){ if(!isFinite(v))v=0; return v.toLocaleString("en-US",{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+function money(cny,dec=0){ const v = state.ui.cur==="USD"? cny/state.ui.rate : cny; return (state.ui.cur==="USD"?"$":"¥")+nf(v,dec); }
+function cur(){return state.ui.cur;}
+function pctf(x,dec=1){ if(!isFinite(x))x=0; return (x*100).toFixed(dec)+"%"; }
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
+
+/* ============================ COMPUTE ============================ */
+function tierPick(tiers,S,S0){ // tiers [[fracOfS0, val]], pick val of highest threshold<=S
+  let v=tiers.length?tiers[0][1]:0;
+  for(const t of tiers){ if(S >= t[0]*S0) v=t[1]; }
+  return v;
+}
+function payFor(e,S,model){
+  if(model==="0") return e.current;
+  const basic=+e.basic||0, gap=Math.max(0,(+e.current||0)-basic);
+  const s=state.salary, S0=(+s.S0)||D.base||1;
+  let variable=0;
+  if(model==="A"){ let r=S/S0; if(S>=(+s.target)) r*=(+s.accel||1); variable=gap*r; }
+  else if(model==="B"){ variable=gap*tierPick(s.stepTiers,S,S0); }
+  else if(model==="C"){ const base=D.totalGap>0? D.totalGap/S0 : 0; const pct=base*tierPick(s.commMul,S,S0); const pool=pct*S; variable=D.totalGap>0? pool*(gap/D.totalGap):0; }
+  else if(model==="D"){ let r=S/S0; const share=D.totalGap>0?gap/D.totalGap:0; variable=gap*(+s.dLinear||0)*r + (+s.dPool||0)*Math.max(0,S-S0)*share; }
+  return Math.max(basic, basic+variable);
+}
+function payrollAt(S,model){ return state.employees.reduce((a,e)=>a+payFor(e,S,model),0); }
+
+function bucketAmount(b){
+  if(b.mode==="fixed") return +b.value||0;
+  const m=+b.months||0;
+  const basisMonthly = b.basis==="rent"?D.rentM : b.basis==="payroll"?D.payrollFloor : b.basis==="material"?D.materialMonthly : b.basis==="elec"?D.elecM : 0;
+  return m*basisMonthly;
+}
+
+function recompute(){
+  const rate=+state.ui.rate||1;
+  // actuals (6-mo) + base monthly
+  let rev6=0, mat6=0;
+  state.products.forEach(p=>{ const r6=(p.price!=null? (+p.qty||0)*(+p.price||0)*rate : 0); p._rev6=r6; rev6+=r6; mat6+=(+p.qty||0)*(+p.raw||0); });
+  D.rev6=rev6; D.mat6=mat6; D.base=rev6/6;
+  const S=Math.max(0,+state.sales.value||0); D.S=S;
+  // production plan from revenue mix (priced items)
+  let matM=0, hoursM=0, qtyTot=0;
+  const byGroup={};
+  state.products.forEach(p=>{
+    const share=rev6>0? p._rev6/rev6 : 0;
+    const revM=share*S;
+    const priceCny=(p.price!=null? (+p.price||0)*rate : 0);
+    const qtyM=priceCny>0? revM/priceCny : 0;
+    p._share=share; p._revM=revM; p._qtyM=qtyM; p._matM=qtyM*(+p.raw||0); p._hoursM=qtyM*(+p.hours||0);
+    matM+=p._matM; hoursM+=p._hoursM; qtyTot+=qtyM;
+    if(!byGroup[p.group]) byGroup[p.group]={group:p.group,rev:0,qty:0,mat:0,hours:0,items:0,priced:0};
+    const g=byGroup[p.group]; g.rev+=revM; g.qty+=qtyM; g.mat+=p._matM; g.hours+=p._hoursM; g.items++; if(p.price!=null&&p.qty>0)g.priced++;
+  });
+  D.materialMonthly=matM; D.reqHoursMonthly=hoursM; D.qtyMonthly=qtyTot; D.byGroup=byGroup;
+  // labor capacity
+  let avail=0, nLab=0;
+  state.employees.forEach(e=>{ if(e.group==="Labor"&&e.prod!==false){ avail+=(+e.hoursMonth||0); nLab++; } });
+  D.availHours=avail; D.nLabor=nLab;
+  D.util=avail>0? hoursM/avail : 0;
+  D.ceilingSales=D.util>0? S/D.util : 0;
+  // salary
+  D.totalGap=state.employees.reduce((a,e)=>a+Math.max(0,(+e.current||0)-(+e.basic||0)),0);
+  D.payrollFloor=state.employees.reduce((a,e)=>a+(+e.basic||0),0);
+  D.payrollCurrent=state.employees.reduce((a,e)=>a+(+e.current||0),0);
+  D.payByModel={}; ["0","A","B","C","D"].forEach(m=>D.payByModel[m]=payrollAt(S,m));
+  D.payroll=D.payByModel[state.salary.model];
+  // costs / profit
+  D.rentM=+state.costs.rentMonthly||0; D.elecM=+state.costs.elecMonthly||0;
+  D.fixedM=D.rentM+D.elecM+D.payroll;
+  D.netM=S-D.materialMonthly-D.rentM-D.elecM-D.payroll;
+  D.marginM=S>0? D.netM/S : 0;
+  D.netCurrentPay = S-D.materialMonthly-D.rentM-D.elecM-D.payByModel["0"]; // profit if fixed pay
+  // allocation
+  let needs=0, reserveCash=0;
+  state.invest.buckets.forEach(b=>{ b._amt=bucketAmount(b); needs+=b._amt; if(b.mode==="months"&&(b.basis==="rent"||b.basis==="payroll"||b.basis==="elec")) reserveCash+=b._amt; });
+  D.needs=needs; D.invTotal=+state.invest.total||0; D.surplus=D.invTotal-needs;
+  D.burnZero=D.rentM+D.elecM+D.payrollFloor; // monthly burn at zero sales (pay at floor)
+  D.reserveCash=reserveCash; D.runway=D.burnZero>0? reserveCash/D.burnZero : 0;
+  // historical reconciliation (from actuals, current roster ×6)
+  const sal6=D.payrollCurrent*6;
+  D.hist={sales:rev6,material:mat6,rent:68000,elec:30000,sal:sal6};
+  D.hist.fixed=D.hist.rent+D.hist.elec+D.hist.sal; D.hist.net=D.hist.sales-D.hist.material-D.hist.fixed;
+  D.hist.margin=D.hist.sales>0?D.hist.net/D.hist.sales:0;
+}
+
+/* ============================ CHART HELPERS ============================ */
+function donut(segs,size=158,thick=24){
+  const r=(size-thick)/2,c=size/2,circ=2*Math.PI*r;
+  const total=segs.reduce((a,s)=>a+Math.max(0,s.value),0)||1; let off=0;
+  const arcs=segs.map(s=>{const len=Math.max(0,s.value)/total*circ;const el=`<circle r="${r}" cx="${c}" cy="${c}" fill="none" stroke="${s.color}" stroke-width="${thick}" stroke-dasharray="${len.toFixed(2)} ${(circ-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${c} ${c})"/>`;off+=len;return el;}).join("");
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${arcs}<circle r="${r-thick/2-1}" cx="${c}" cy="${c}" fill="var(--bg-card)"/></svg>`;
+}
+function legend(segs){ return `<div class="legend">`+segs.map(s=>`<span><i style="background:${s.color}"></i>${esc(s.label)} · ${money(s.value)}</span>`).join("")+`</div>`; }
+function barsH(rows){ const max=Math.max(...rows.map(r=>r.value),1);
+  return `<div class="barsH">`+rows.map(r=>`<div class="barRow"><div class="barLab" title="${esc(r.label)}">${esc(r.label)}</div><div class="barTrack"><div class="barFill" style="width:${Math.max(0,r.value)/max*100}%;background:${r.color||"var(--blue)"}"></div></div><div class="barVal">${r.disp!=null?r.disp:money(r.value)}</div></div>`).join("")+`</div>`; }
+function lineChart(series,opts){
+  const W=opts.w||520,H=opts.h||200,pad=34, xMax=opts.xMax, yMax=opts.yMax*1.08||1;
+  const X=x=>pad+(x/xMax)*(W-pad-8), Y=y=>H-pad-(y/yMax)*(H-pad-10);
+  let grid="";
+  for(let i=0;i<=4;i++){const gy=H-pad-(i/4)*(H-pad-10);grid+=`<line x1="${pad}" y1="${gy}" x2="${W-8}" y2="${gy}" stroke="var(--border-subtle)"/><text x="2" y="${gy+3}" fill="var(--text-muted)" font-size="9">${nf(yMax*i/4/1000)}k</text>`;}
+  const polys=series.map(s=>{const pts=s.pts.map(p=>`${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ");return `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2"/>`;}).join("");
+  const mk=opts.markX!=null?`<line x1="${X(opts.markX)}" y1="10" x2="${X(opts.markX)}" y2="${H-pad}" stroke="var(--amber)" stroke-dasharray="4 3"/>`:"";
+  const xl=`<text x="${pad}" y="${H-8}" fill="var(--text-muted)" font-size="9">0</text><text x="${W-30}" y="${H-8}" fill="var(--text-muted)" font-size="9">${nf(xMax/1000)}k</text>`;
+  const leg=`<div class="legend">`+series.map(s=>`<span><i style="background:${s.color}"></i>${esc(s.label)}</span>`).join("")+`</div>`;
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="max-width:${W}px">${grid}${mk}${polys}${xl}</svg>${leg}`;
+}
+
+/* ============================ RENDER: STATIC INPUTS ============================ */
+function renderControls(){
+  // header
+  [...document.querySelectorAll('#langSeg button')].forEach(b=>b.classList.toggle("on",b.dataset.v===state.ui.lang));
+  [...document.querySelectorAll('#curSeg button')].forEach(b=>b.classList.toggle("on",b.dataset.v===state.ui.cur));
+  setVal("rate",state.ui.rate); setVal("months",state.ui.months);
+  // rail
+  [...document.querySelectorAll('#scnSeg button')].forEach(b=>{
+    const v=b.dataset.v, target= v==="base"?D.base : v==="worst"?D.base*(1-state.sales.flex/100):D.base*(1+state.sales.flex/100);
+    b.classList.toggle("on", Math.abs(state.sales.value-target)<1);
+  });
+  setVal("flex",state.sales.flex);
+  const sl=$("salesSlider"); sl.max=Math.round(Math.max(D.base*2.5,1000000)); if(document.activeElement!==sl) sl.value=Math.min(state.sales.value,sl.max);
+  setVal("salesBox",Math.round(state.sales.value));
+  $("salesBig").textContent=money(state.sales.value);
+  const dev=D.base>0?(state.sales.value/D.base-1):0;
+  $("salesVs").innerHTML=`<span class="${dev>=0?'pos':'neg'}">${dev>=0?'+':''}${(dev*100).toFixed(0)}%</span> ${t('vs_base')}`;
+  $("baseMonthly").textContent=money(D.base);
+  $("salesTicks").innerHTML=`<span>0</span><span>${t('worst')} ${money(D.base*(1-state.sales.flex/100))}</span><span>${t('base')} ${money(D.base)}</span><span>${t('best')} ${money(D.base*(1+state.sales.flex/100))}</span><span>${money(sl.max)}</span>`;
+  // module 4
+  setVal("hoursDay",state.labor.hoursDay); setVal("daysMonth",state.labor.daysMonth);
+  // module 5
+  [...document.querySelectorAll('#modelSeg button')].forEach(b=>b.classList.toggle("on",b.dataset.v===state.salary.model));
+  setVal("basicPct",state.salary.basicPct); setVal("S0",Math.round(state.salary.S0));
+  setVal("target",Math.round(state.salary.target)); setVal("accel",state.salary.accel);
+  const desc=t('modeldesc_'+state.salary.model);
+  let extra="";
+  if(state.salary.model==="D") extra=`<div class="flex" style="margin-top:8px"><div><label class="lbl">${t('m5_d_linear')}</label><input type="number" class="num-sm" step="0.05" data-k="dLinear" value="${state.salary.dLinear}"></div><div><label class="lbl">${t('m5_d_pool')}</label><input type="number" class="num-sm" step="0.01" data-k="dPool" value="${state.salary.dPool}"></div></div>`;
+  const _md=$("modelDesc"); const _mk=state.salary.model+state.ui.lang; if(_md.dataset.m!==_mk){_md.dataset.m=_mk; _md.innerHTML=desc+extra;}
+  // module 6
+  setVal("rent",state.costs.rentMonthly); setVal("elec",state.costs.elecMonthly);
+  // invest
+  setVal("invTotal",state.invest.total||"");
+  $("stamp").textContent=new Date().toLocaleString();
+}
+
+function renderBuckets(){
+  const head=`<tr><th>${t('bucket_h_bucket')}</th><th>${t('bucket_h_mode')}</th><th>${t('bucket_h_value')}</th><th>${t('bucket_h_basis')}</th><th>${t('bucket_h_amount')}</th><th></th></tr>`;
+  const basisLbl={rent:t('basis_rent'),payroll:t('basis_payroll'),material:t('basis_material'),elec:t('basis_elec')};
+  const rows=state.invest.buckets.map(b=>{
+    const modeSel=`<select data-k="bmode" data-id="${b.id}"><option value="fixed"${b.mode==="fixed"?" selected":""}>${t('mode_fixed')}</option><option value="months"${b.mode==="months"?" selected":""}>${t('mode_months')}</option></select>`;
+    const valCell = b.mode==="fixed"
+      ? `<input type="number" class="num-sm" step="1000" data-k="bvalue" data-id="${b.id}" value="${b.value}">`
+      : `<input type="number" class="num-sm" step="1" data-k="bmonths" data-id="${b.id}" value="${b.months}"> ${t('mo_suffix')}`;
+    const basisSel = b.mode==="months"
+      ? `<select data-k="bbasis" data-id="${b.id}">${["rent","payroll","material","elec"].map(x=>`<option value="${x}"${b.basis===x?" selected":""}>${basisLbl[x]}</option>`).join("")}</select>`
+      : `<span class="muted">—</span>`;
+    return `<tr><td><input class="txt" data-k="bname" data-id="${b.id}" value="${esc(tBucket(b.name))}"></td><td>${modeSel}</td><td>${valCell}</td><td>${basisSel}</td><td>${money(b._amt)}</td><td class="noprint"><button class="tiny" data-act="delBucket" data-id="${b.id}">✕</button></td></tr>`;
+  }).join("");
+  const tot=`<tr class="total"><td>${t('total_needs')}</td><td></td><td></td><td></td><td>${money(D.needs)}</td><td></td></tr>`;
+  $("bucketTbl").innerHTML=head+rows+tot;
+}
+
+function renderProducts(){
+  const onlyP=$("onlyProduced")&&$("onlyProduced").checked;
+  const head=`<tr><th>${t('prod_h_group')}</th><th>${t('prod_h_item')}</th><th>${t('prod_h_raw')}</th><th>${t('prod_h_hours')}</th><th>${t('prod_h_qty')}</th><th>${t('prod_h_price')}</th><th>${t('prod_h_sales')}</th><th class="noprint"></th></tr>`;
+  let html=head, lastG=null;
+  state.products.forEach(p=>{
+    if(onlyP && !(p.qty>0)) return;
+    if(p.group!==lastG){ html+=`<tr class="grp"><td colspan="8">${esc(tGroup(p.group))}</td></tr>`; lastG=p.group; }
+    const miss = p.price==null && p.qty>0;
+    const sales6 = p.price!=null? p.qty*p.price*state.ui.rate : 0;
+    html+=`<tr>
+      <td class="muted">${esc(tGroup(p.group))}</td>
+      <td><input class="txt" data-k="pitem" data-id="${p.id}" value="${esc(p.item)}"></td>
+      <td><input class="num-sm" type="number" step="0.001" data-k="praw" data-id="${p.id}" value="${p.raw}"></td>
+      <td><input class="num-sm" type="number" step="0.0001" data-k="phours" data-id="${p.id}" value="${p.hours}"></td>
+      <td><input class="num-sm" type="number" step="1" data-k="pqty" data-id="${p.id}" value="${p.qty}"></td>
+      <td><input class="num-sm ${miss?'flag':''}" type="number" step="0.001" data-k="pprice" data-id="${p.id}" value="${p.price==null?'':p.price}" placeholder="${miss?t('missing'):''}"></td>
+      <td>${p.price!=null?money(sales6):'<span class="muted">—</span>'}</td>
+      <td class="noprint"><button class="tiny" data-act="delProd" data-id="${p.id}">✕</button></td></tr>`;
+  });
+  $("prodTbl").innerHTML=html;
+  renderM3Alert();
+}
+function renderM3Alert(){
+  const miss=state.products.filter(p=>p.price==null&&p.qty>0);
+  $("m3alert").innerHTML = miss.length
+    ? `<div class="note alert">${t('m3alert_miss', miss.length, miss.map(p=>esc(tGroup(p.group)+" "+p.item)).join("、"))}</div>`
+    : `<div class="note" style="border-left-color:var(--positive)">${t('m3alert_ok')}</div>`;
+}
+function updateProdRowCell(t,p){
+  const tr=t.closest("tr"); if(!tr) return;
+  const rate=+state.ui.rate||1;
+  if(tr.children[6]) tr.children[6].innerHTML = p.price!=null? money(p.qty*p.price*rate) : '<span class="muted">—</span>';
+  const pin=tr.querySelector('input[data-k="pprice"]'); if(pin) pin.classList.toggle("flag",p.price==null&&p.qty>0);
+}
+
+function renderEmps(){
+  const head=`<tr><th>${t('emp_h_name')}</th><th>${t('emp_h_position')}</th><th>${t('emp_h_group')}</th><th>${t('emp_h_current')}</th><th>${t('emp_h_basic')}</th><th>${t('emp_h_hours')}</th><th>${t('emp_h_pay_now')}</th><th class="noprint"></th></tr>`;
+  const rows=state.employees.map(e=>{
+    const pay=payFor(e,D.S,state.salary.model);
+    const grp=`<select data-k="egroup" data-id="${e.id}"><option value="Employee"${e.group==="Employee"?" selected":""}>${t('group_employee')}</option><option value="Labor"${e.group==="Labor"?" selected":""}>${t('group_labor')}</option></select>`;
+    const hrs = e.group==="Labor"? `<input class="num-sm" type="number" step="1" data-k="ehours" data-id="${e.id}" value="${e.hoursMonth}">` : `<span class="muted">—</span>`;
+    return `<tr>
+      <td><input class="txt" data-k="ename" data-id="${e.id}" value="${esc(e.name)}"></td>
+      <td><input class="txt" data-k="eposition" data-id="${e.id}" value="${esc(tPos(e.position))}"></td>
+      <td>${grp}</td>
+      <td><input class="num-sm" type="number" step="100" data-k="ecurrent" data-id="${e.id}" value="${e.current}"></td>
+      <td><input class="num-sm" type="number" step="100" data-k="ebasic" data-id="${e.id}" value="${e.basic}"></td>
+      <td>${hrs}</td>
+      <td class="${pay>e.current?'pos':pay<e.current?'neg':''}">${money(pay)}</td>
+      <td class="noprint"><button class="tiny" data-act="delEmp" data-id="${e.id}">✕</button></td></tr>`;
+  }).join("");
+  const totRow=`<tr class="total"><td>${t('totals')}</td><td></td><td>${state.employees.length} ${t('ppl')}</td><td>${money(D.payrollCurrent)}</td><td>${money(D.payrollFloor)}</td><td>${nf(D.availHours)} ${t('h_suffix')}</td><td>${money(D.payroll)}</td><td></td></tr>`;
+  $("empTbl").innerHTML=head+rows+totRow;
+}
+
+/* ============================ RENDER: REACTIVE ============================ */
+function renderKPIs(){
+  const cards=[
+    {l:t('kpi_monthly_sales'),v:money(D.S),s:`${D.S>=D.base?'+':''}${((D.S/D.base-1)*100||0).toFixed(0)}% ${t('vs_base')}`,c:"bl"},
+    {l:t('kpi_material_cost'),v:money(D.materialMonthly),s:pctf(D.S>0?D.materialMonthly/D.S:0)+" "+t('of_sales'),c:"or"},
+    {l:t('kpi_payroll')+" ("+(state.salary.model==="0"?t('fixed_word'):t('model_word')+" "+state.salary.model)+")",v:money(D.payroll),s:pctf(D.S>0?D.payroll/D.S:0)+" "+t('of_sales'),c:"te"},
+    {l:t('kpi_net_profit'),v:money(D.netM),s:pctf(D.marginM)+" "+t('margin'),c:D.netM>=0?"pos":"neg"},
+  ];
+  $("kpis").innerHTML=cards.map(k=>`<div class="kpi"><div class="k-l">${k.l}</div><div class="k-v ${k.c}">${k.v}</div><div class="k-s">${k.s}</div></div>`).join("");
+}
+
+function renderM1(){
+  const segs=state.invest.buckets.filter(b=>b._amt>0).map((b,i)=>({label:tBucket(b.name),value:b._amt,color:["#2196F3","#00BCD4","#FF9800","#FFB300","#00C853","#B388FF","#FF3D71","#8B9DB8"][i%8]}));
+  const enough=D.invTotal>=D.needs;
+  const out=`
+    <div class="grid" style="grid-template-columns:158px 1fr;gap:16px;align-items:center">
+      <div>${donut(segs)}</div>
+      <div>${legend(segs)}</div>
+    </div>
+    <hr class="hr">
+    <div class="kv"><span>${t('m1_total_needs_sum')}</span><b>${money(D.needs)}</b></div>
+    <div class="kv"><span>${t('m1_your_investment')}</span><b>${money(D.invTotal)}</b></div>
+    <div class="kv"><span>${enough?t('surplus'):t('shortfall')}</span><b class="${enough?'pos':'neg'}">${money(Math.abs(D.surplus))}</b></div>
+    <div class="kv"><span>${t('m1_reserve_cash')}</span><b>${money(D.reserveCash)}</b></div>
+    <div class="kv"><span>${t('m1_burn_zero')}</span><b>${money(D.burnZero)}</b></div>
+    <div class="kv"><span>${t('m1_runway_zero')}</span><b class="${D.runway>=3?'pos':'am'}">${D.runway.toFixed(1)} ${t('months_unit')}</b></div>
+    <div class="verdict ${enough?'good':'bad'}" style="margin-top:12px">
+      <div class="vh ${enough?'pos':'neg'}">${enough?t('m1_enough'):t('m1_not_enough')}</div>
+      <div class="help">${enough?t('m1_enough_help',money(D.surplus),D.runway.toFixed(1)):t('m1_not_enough_help',money(-D.surplus),money(D.needs))}</div>
+    </div>`;
+  $("m1out").innerHTML=out;
+}
+
+function renderM2(){
+  const groups=Object.values(D.byGroup).filter(g=>g.rev>0).sort((a,b)=>b.rev-a.rev);
+  const bars=groups.map(g=>({label:tGroup(g.group),value:g.rev,color:"#2196F3",disp:money(g.rev)}));
+  let rowsHtml=`<tr><th>${t('m2_h_group_item')}</th><th>${t('m2_h_mix')}</th><th>${t('m2_h_make')}</th><th>${t('m2_h_revenue')}</th><th>${t('m2_h_material')}</th><th>${t('m2_h_hours')}</th></tr>`;
+  const produced=state.products.filter(p=>p._revM>0);
+  let lastG=null;
+  produced.forEach(p=>{
+    if(p.group!==lastG){ const g=D.byGroup[p.group]; rowsHtml+=`<tr class="grp"><td>${esc(tGroup(p.group))}</td><td>${pctf(g.rev/D.S)}</td><td>${nf(g.qty)}</td><td>${money(g.rev)}</td><td>${money(g.mat)}</td><td>${nf(g.hours,1)}</td></tr>`; lastG=p.group; }
+    rowsHtml+=`<tr><td style="padding-left:18px">${esc(p.item)}</td><td>${pctf(p._share)}</td><td>${nf(p._qtyM)}</td><td>${money(p._revM)}</td><td>${money(p._matM)}</td><td>${nf(p._hoursM,1)}</td></tr>`;
+  });
+  rowsHtml+=`<tr class="total"><td>${t('m2_total_make',money(D.S))}</td><td>100%</td><td>${nf(D.qtyMonthly)}</td><td>${money(D.S)}</td><td>${money(D.materialMonthly)}</td><td>${nf(D.reqHoursMonthly,1)}</td></tr>`;
+  $("m2out").innerHTML=`
+    <div class="grid g2">
+      <div><h3>${t('m2_rev_by_group',money(D.S))}</h3>${barsH(bars)}</div>
+      <div>
+        <div class="kv"><span>${t('m2_items_produce')}</span><b>${nf(D.qtyMonthly)} ${t('pcs_mo')}</b></div>
+        <div class="kv"><span>${t('m2_material_buy')}</span><b class="or">${money(D.materialMonthly)}/${t('mo_suffix')}</b></div>
+        <div class="kv"><span>${t('m2_hours_needed')}</span><b>${nf(D.reqHoursMonthly,1)} ${t('h_suffix')}/${t('mo_suffix')}</b></div>
+        <div class="kv"><span>${t('m2_gross_margin')}</span><b class="pos">${money(D.S-D.materialMonthly)}</b></div>
+        <div class="note">${t('m2_note')}</div>
+      </div>
+    </div>
+    <h3 style="margin-top:14px">${t('m2_plan_title')}</h3>
+    <div class="tall scrollx"><table>${rowsHtml}</table></div>`;
+}
+
+function renderM4(){
+  const util=D.util, over=util>1;
+  const groups=Object.values(D.byGroup).filter(g=>g.hours>0).sort((a,b)=>b.hours-a.hours);
+  const bars=groups.map(g=>({label:tGroup(g.group),value:g.hours,color:"#00BCD4",disp:nf(g.hours,1)+" "+t('h_suffix')}));
+  const ceilingPct=D.ceilingSales>0?D.base/D.ceilingSales:0;
+  const out=`
+    <div class="g3 grid">
+      <div class="kpi"><div class="k-l">${t('m4_utilization')}</div><div class="k-v ${over?'neg':util>0.85?'am':'pos'}">${pctf(util)}</div><div class="k-s">${t('m4_of_hmo',nf(D.reqHoursMonthly,0),nf(D.availHours,0))}</div></div>
+      <div class="kpi"><div class="k-l">${over?t('m4_shortfall'):t('m4_headroom')}</div><div class="k-v ${over?'neg':'pos'}">${nf(Math.abs(D.availHours-D.reqHoursMonthly),0)} ${t('h_suffix')}</div><div class="k-s">${over?t('m4_overtime_hire'):t('m4_spare_hours')}</div></div>
+      <div class="kpi"><div class="k-l">${t('m4_capacity_ceiling')}</div><div class="k-v bl">${money(D.ceilingSales)}</div><div class="k-s">${t('m4_sales_100')}</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div><h3>${t('m4_hours_by_group',money(D.S))}</h3>${barsH(bars)}</div>
+      <div>
+        <div class="kv"><span>${t('m4_producing_laborers')}</span><b>${D.nLabor}</b></div>
+        <div class="kv"><span>${t('m4_avail_hours')}</span><b>${nf(D.availHours)} ${t('h_suffix')}</b></div>
+        <div class="kv"><span>${t('m4_req_hours')}</span><b>${nf(D.reqHoursMonthly,1)} ${t('h_suffix')}</b></div>
+        <div class="kv"><span>${t('m4_at_base_use')}</span><b class="${over?'neg':'pos'}">${pctf(ceilingPct)} ${t('m4_of_capacity')}</b></div>
+        <div class="note">${over
+          ? t('m4_over_note')
+          : t('m4_under_note',money(D.ceilingSales),(D.ceilingSales/D.base).toFixed(2))}</div>
+      </div>
+    </div>`;
+  $("m4out").innerHTML=out;
+}
+
+function renderM5(){
+  const S=D.S, model=state.salary.model;
+  // owner comparison across models at current S
+  const models=["0","A","B","C","D"];
+  let ownerRows=`<tr><th>${t('m5_h_model')}</th><th>${t('m5_h_payroll_mo')}</th><th>${t('m5_h_pct_sales')}</th><th>${t('m5_h_net_mo')}</th><th>${t('m5_h_vs_fixed')}</th></tr>`;
+  const fixedNet=S-D.materialMonthly-D.rentM-D.elecM-D.payByModel["0"];
+  models.forEach(m=>{
+    const pr=D.payByModel[m], net=S-D.materialMonthly-D.rentM-D.elecM-pr, diff=net-fixedNet;
+    ownerRows+=`<tr class="${m===model?'subtot':''}"><td>${m} · ${t('modelname_'+m)}</td><td>${money(pr)}</td><td>${pctf(S>0?pr/S:0)}</td><td class="${net>=0?'pos':'neg'}">${money(net)}</td><td class="${diff>=0?'pos':'neg'}">${diff>=0?'+':''}${money(diff)}</td></tr>`;
+  });
+  // downside protection: payroll at worst vs base vs best for selected model
+  const worst=D.base*(1-state.sales.flex/100), best=D.base*(1+state.sales.flex/100);
+  const prot=`<div class="kv"><span>${t('m5_payroll_worst',money(worst))}</span><b>${money(payrollAt(worst,model))}</b></div>
+    <div class="kv"><span>${t('m5_payroll_base',money(D.base))}</span><b>${money(payrollAt(D.base,model))}</b></div>
+    <div class="kv"><span>${t('m5_payroll_best',money(best))}</span><b>${money(payrollAt(best,model))}</b></div>
+    <div class="kv"><span>${t('m5_fixed_always')}</span><b>${money(D.payByModel["0"])}</b></div>`;
+  // line chart payroll vs sales
+  const xMax=Math.round(D.base*2.2); const N=40;
+  const sModel={label:t('m5_model_payroll',(model==="0"?"0":model)),color:"#00BCD4",pts:[]};
+  const sFixed={label:t('m5_fixed_payroll'),color:"#FF9800",pts:[]};
+  const sNet={label:t('m5_net_profit'),color:"#00C853",pts:[]};
+  for(let i=0;i<=N;i++){const x=xMax*i/N;sModel.pts.push([x,payrollAt(x,model)]);sFixed.pts.push([x,D.payByModel["0"]]);sNet.pts.push([x,Math.max(0,x-D.materialMonthly-D.rentM-D.elecM-payrollAt(x,model))]);}
+  const yMax=Math.max(...sNet.pts.map(p=>p[1]),...sFixed.pts.map(p=>p[1]),...sModel.pts.map(p=>p[1]));
+  // employee comparison: today vs new + breakeven
+  let empRows=`<tr><th>${t('m5_h_person')}</th><th>${t('m5_h_group')}</th><th>${t('m5_h_today')}</th><th>${t('m5_h_new_at',money(S))}</th><th>${t('m5_h_delta')}</th><th>${t('m5_h_sales_match')}</th></tr>`;
+  state.employees.forEach(e=>{
+    const today=e.current, now=payFor(e,S,model);
+    // breakeven scan
+    let be=null; const steps=120, xm=D.base*2.5;
+    for(let i=0;i<=steps;i++){const x=xm*i/steps; if(payFor(e,x,model)>=today-0.5){be=x;break;}}
+    const d=now-today;
+    empRows+=`<tr><td>${esc(e.name)}</td><td><span class="pill ${e.group==="Labor"?'lab':'emp'}">${e.group==="Labor"?t('group_labor'):t('group_employee')}</span></td><td>${money(today)}</td><td class="${now>=today?'pos':'neg'}">${money(now)}</td><td class="${d>=0?'pos':'neg'}">${d>=0?'+':''}${money(d)}</td><td>${be==null?'—':money(be)}</td></tr>`;
+  });
+  $("m5out").innerHTML=`
+    <div class="grid g2">
+      <div>
+        <h3>${t('m5_owner_view')} <span class="help">${t('m5_at_mo',money(S))}</span></h3>
+        <div class="scrollx"><table>${ownerRows}</table></div>
+        <h3 style="margin-top:14px">${t('m5_downside', t('m5_h_model')+" "+(model==="0"?"0":model))}</h3>
+        ${prot}
+        <div class="note">${t('m5_downside_note')}</div>
+      </div>
+      <div>
+        <h3>${t('m5_payroll_vs_sales')}</h3>
+        ${lineChart([sFixed,sModel,sNet],{xMax,yMax,markX:S,w:520,h:210})}
+        <div class="help">${t('m5_chart_help')}</div>
+      </div>
+    </div>
+    <h3 style="margin-top:16px">${t('m5_emp_view')} <span class="help">${t('m5_emp_view_help')}</span></h3>
+    <div class="scrollx"><table>${empRows}</table></div>
+    <div class="note">${t('m5_emp_note')}</div>`;
+}
+
+function renderM6(){
+  const cost=[
+    {label:t('m6_materials'),value:D.materialMonthly,color:"#FF9800"},
+    {label:t('m6_salaries'),value:D.payroll,color:"#00BCD4"},
+    {label:t('m6_rent'),value:D.rentM,color:"#FFB300"},
+    {label:t('m6_electricity'),value:D.elecM,color:"#B388FF"},
+  ];
+  const profitable=D.netM>=0, enough=D.invTotal>=D.needs;
+  const h=D.hist;
+  const payLbl=state.salary.model==="0"?t('mode_fixed'):t('m5_h_model')+" "+state.salary.model;
+  const out=`
+    <div class="grid g2">
+      <div>
+        <h3>${t('m6_cost_breakdown',money(D.S))}</h3>
+        <div class="grid" style="grid-template-columns:158px 1fr;gap:14px;align-items:center"><div>${donut(cost)}</div><div>${legend(cost)}</div></div>
+        <hr class="hr">
+        <div class="kv"><span>${t('m6_sales')}</span><b class="bl">${money(D.S)}</b></div>
+        <div class="kv"><span>${t('m6_minus_material')}</span><b class="or">${money(D.materialMonthly)}</b></div>
+        <div class="kv"><span>${t('m6_minus_payroll',payLbl)}</span><b class="te">${money(D.payroll)}</b></div>
+        <div class="kv"><span>${t('m6_minus_rent_elec')}</span><b>${money(D.rentM+D.elecM)}</b></div>
+        <div class="kv"><span>${t('m6_eq_net')}</span><b class="${profitable?'pos':'neg'}">${money(D.netM)}</b></div>
+        <div class="kv"><span>${t('m6_over_months',state.ui.months)}</span><b class="${profitable?'pos':'neg'}">${money(D.netM*state.ui.months)}</b></div>
+      </div>
+      <div>
+        <div class="verdict ${profitable?'good':'bad'}">
+          <div class="vh ${profitable?'pos':'neg'}">${profitable?t('m6_profitable'):t('m6_loss')}</div>
+          <div class="help">${profitable?t('m6_profitable_help',money(D.S),money(D.netM),pctf(D.marginM)):t('m6_loss_help',money(D.S),money(-D.netM))}</div>
+        </div>
+        <div class="verdict ${enough?'good':'bad'}" style="margin-top:12px">
+          <div class="vh ${enough?'pos':'neg'}">${enough?t('m6_inv_enough'):t('m6_inv_not_enough')}</div>
+          <div class="help">${enough?t('m6_inv_enough_help',money(D.invTotal),money(D.needs),D.runway.toFixed(1)):t('m6_inv_not_enough_help',money(D.needs),money(D.invTotal))}</div>
+        </div>
+        <hr class="hr">
+        <h3>${t('m6_ground_truth')} <span class="help">${t('m6_6mo_actuals')}</span></h3>
+        <div class="kv"><span>${t('m6_sales')}</span><b>${money(h.sales)}</b></div>
+        <div class="kv"><span>${t('m6_materials')}</span><b>${money(h.material)}</b></div>
+        <div class="kv"><span>${t('m6_gt_fixed')}</span><b>${money(h.fixed)}</b></div>
+        <div class="kv"><span>${t('m6_gt_net')}</span><b class="${h.net>=0?'pos':'neg'}">${money(h.net)} · ${pctf(h.margin)}</b></div>
+        <div class="help">${t('m6_gt_help',state.ui.rate)}</div>
+      </div>
+    </div>`;
+  $("m6out").innerHTML=out;
+}
+
+/* ============================ ORCHESTRATION ============================ */
+function renderReactive(){ renderKPIs(); renderM1(); renderM2(); renderM4(); renderM5(); renderM6(); renderBuckets(); renderEmps(); }
+function renderStatic(){ renderProducts(); }
+function refresh(){
+  recompute(); renderControls();
+  // preserve focus + caret across the reactive rebuild (emp/bucket tables re-render their innerHTML)
+  const ae=document.activeElement; let foc=null;
+  if(ae&&ae.dataset&&ae.dataset.k&&ae.dataset.id){ let s=null,e=null; try{s=ae.selectionStart;e=ae.selectionEnd;}catch(_){} foc={k:ae.dataset.k,id:ae.dataset.id,s:s,e:e}; }
+  renderReactive();
+  if(foc){ const el=document.querySelector('[data-k="'+foc.k+'"][data-id="'+foc.id+'"]'); if(el){ el.focus(); if(foc.s!=null&&el.setSelectionRange){ try{el.setSelectionRange(foc.s,foc.e);}catch(_){} } } }
+  save();
+}
+function fullRender(){ recompute(); renderControls(); renderStatic(); renderReactive(); save(); }
+
+/* ============================ EVENTS ============================ */
+function findProd(id){return state.products.find(p=>p.id===id);}
+function findEmp(id){return state.employees.find(e=>e.id===id);}
+function findBucket(id){return state.invest.buckets.find(b=>b.id===id);}
+
+document.addEventListener("input",e=>{
+  const t=e.target, k=t.dataset.k, id=t.dataset.id;
+  if(!k && !t.id) return;
+  const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
+  // header / rail
+  if(t.id==="rate"){state.ui.rate=num(t.value)||1;refresh();return;}
+  if(t.id==="months"){state.ui.months=Math.max(1,Math.round(num(t.value)));refresh();return;}
+  if(t.id==="flex"){state.sales.flex=num(t.value);refresh();return;}
+  if(t.id==="salesSlider"){state.sales.value=num(t.value);$("salesBox").value=Math.round(state.sales.value);$("salesBig").textContent=money(state.sales.value);refresh();return;}
+  if(t.id==="salesBox"){state.sales.value=num(t.value);refresh();return;}
+  if(t.id==="hoursDay"){state.labor.hoursDay=num(t.value);refresh();return;}
+  if(t.id==="daysMonth"){state.labor.daysMonth=num(t.value);refresh();return;}
+  if(t.id==="basicPct"){state.salary.basicPct=num(t.value);return;}
+  if(t.id==="S0"){state.salary.S0=num(t.value);refresh();return;}
+  if(t.id==="target"){state.salary.target=num(t.value);refresh();return;}
+  if(t.id==="accel"){state.salary.accel=num(t.value);refresh();return;}
+  if(t.id==="rent"){state.costs.rentMonthly=num(t.value);refresh();return;}
+  if(t.id==="elec"){state.costs.elecMonthly=num(t.value);refresh();return;}
+  if(t.id==="invTotal"){state.invest.total=num(t.value);refresh();return;}
+  if(t.id==="onlyProduced"){renderProducts();return;}
+  // model custom knobs
+  if(k==="dLinear"){state.salary.dLinear=num(t.value);refresh();return;}
+  if(k==="dPool"){state.salary.dPool=num(t.value);refresh();return;}
+  // products
+  if(k==="pitem"){findProd(id).item=t.value;refresh();return;}
+  if(k==="praw"){findProd(id).raw=num(t.value);refresh();return;}
+  if(k==="phours"){findProd(id).hours=num(t.value);refresh();return;}
+  if(k==="pqty"){const p=findProd(id);p.qty=num(t.value);refresh();renderM3Alert();updateProdRowCell(t,p);return;}
+  if(k==="pprice"){const p=findProd(id);p.price=t.value===""?null:num(t.value);refresh();renderM3Alert();updateProdRowCell(t,p);return;}
+  // employees
+  if(k==="ename"){findEmp(id).name=t.value;refresh();return;}
+  if(k==="eposition"){findEmp(id).position=t.value;refresh();return;}
+  if(k==="egroup"){const em=findEmp(id);em.group=t.value;if(t.value==="Labor"&&!em.hoursMonth)em.hoursMonth=state.labor.hoursDay*state.labor.daysMonth;fullRender();return;}
+  if(k==="ecurrent"){findEmp(id).current=num(t.value);refresh();return;}
+  if(k==="ebasic"){findEmp(id).basic=num(t.value);refresh();return;}
+  if(k==="ehours"){findEmp(id).hoursMonth=num(t.value);refresh();return;}
+  // buckets
+  if(k==="bname"){findBucket(id).name=t.value;refresh();return;}
+  if(k==="bmode"){findBucket(id).mode=t.value;fullRender();return;}
+  if(k==="bvalue"){findBucket(id).value=num(t.value);refresh();return;}
+  if(k==="bmonths"){findBucket(id).months=num(t.value);refresh();return;}
+  if(k==="bbasis"){findBucket(id).basis=t.value;refresh();return;}
+});
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]"); if(!b) return;
+  const act=b.dataset.act, v=b.dataset.v, id=b.dataset.id;
+  if(act==="lang"){state.ui.lang=v;applyStaticI18n();fullRender();}
+  else if(act==="cur"){state.ui.cur=v;refresh();}
+  else if(act==="scn"){const f=state.sales.flex/100;state.sales.value=Math.round(v==="base"?D.base:v==="worst"?D.base*(1-f):D.base*(1+f));refresh();}
+  else if(act==="model"){state.salary.model=v;refresh();}
+  else if(act==="reconcile"){state.sales.value=Math.round(D.base);state.salary.model="0";refresh();}
+  else if(act==="reset"){if(confirm("Restore all default data and settings? Your edits in this browser will be lost.")){state=defaultState();fullRender();}}
+  else if(act==="export"){doExport();}
+  else if(act==="import"){$("fileImport").click();}
+  else if(act==="print"){window.print();}
+  else if(act==="invFill"){state.invest.total=Math.round(D.needs);refresh();}
+  else if(act==="addBucket"){state.invest.buckets.push({id:uid("b"),name:"New bucket",mode:"fixed",value:0,months:0,basis:"none"});fullRender();}
+  else if(act==="delBucket"){state.invest.buckets=state.invest.buckets.filter(x=>x.id!==id);fullRender();}
+  else if(act==="addProd"){state.products.push({id:uid("p"),group:"New group",item:"New item",raw:0,hours:0,qty:0,price:null});fullRender();}
+  else if(act==="delProd"){state.products=state.products.filter(x=>x.id!==id);fullRender();}
+  else if(act==="addEmp"){state.employees.push({id:uid("e"),name:"New "+v,position:v,group:v,current:5000,basic:3000,hoursMonth:v==="Labor"?state.labor.hoursDay*state.labor.daysMonth:0,prod:v==="Labor"});fullRender();}
+  else if(act==="delEmp"){state.employees=state.employees.filter(x=>x.id!==id);fullRender();}
+  else if(act==="applyBasic"){const f=(state.salary.basicPct||0)/100;state.employees.forEach(em=>em.basic=Math.round(em.current*f));fullRender();}
+  else if(act==="csvTemplate"){csvTemplate();}
+  else if(act==="csvImport"){$("csvFile").click();}
+  else if(act==="xlsxExport"){doXlsxExport();}
+  else if(act==="xlsxImport"){$("xlsxFile").click();}
+});
+
+/* ============================ IMPORT / EXPORT ============================ */
+function doExport(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="red-dragon-factory-"+new Date().toISOString().slice(0,10)+".json";a.click();
+}
+$("fileImport").addEventListener("change",e=>{
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const s=JSON.parse(r.result);state=s;UID=999;fullRender();alert("Imported.");}catch(err){alert("Invalid file: "+err.message);}};
+  r.readAsText(f);e.target.value="";
+});
+function csvTemplate(){
+  const rows=[["group","item","raw_cny","hours_pc","qty_6mo","price_usd"]].concat(state.products.map(p=>[p.group,p.item,p.raw,p.hours,p.qty,p.price==null?"":p.price]));
+  const csv=rows.map(r=>r.map(c=>/[",\n]/.test(String(c))?'"'+String(c).replace(/"/g,'""')+'"':c).join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="products-template.csv";a.click();
+}
+function parseCSV(text){
+  const rows=[];let i=0,f="",row=[],q=false;
+  while(i<text.length){const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;}else q=false; } else f+=c; }
+    else{ if(c==='"')q=true; else if(c===","){row.push(f);f="";} else if(c==="\n"||c==="\r"){ if(f!==""||row.length){row.push(f);rows.push(row);row=[];f="";} if(c==="\r"&&text[i+1]==="\n")i++; } else f+=c; }
+    i++;
+  }
+  if(f!==""||row.length){row.push(f);rows.push(row);}
+  return rows;
+}
+$("csvFile").addEventListener("change",e=>{
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{ try{
+    const rows=parseCSV(r.result).filter(r=>r.length>=5); const head=rows.shift();
+    const prods=rows.map(c=>({id:uid("p"),group:c[0]||"",item:c[1]||"",raw:parseFloat(c[2])||0,hours:parseFloat(c[3])||0,qty:parseFloat(c[4])||0,price:c[5]===""||c[5]==null?null:parseFloat(c[5])}));
+    if(prods.length){state.products=prods;fullRender();alert("Imported "+prods.length+" items from CSV.");}
+  }catch(err){alert("CSV error: "+err.message);} };
+  r.readAsText(f);e.target.value="";
+});
+
+/* ============================ EXCEL IMPORT / EXPORT ============================ */
+function doXlsxExport(){
+  if(typeof XLSX==="undefined"){alert("Excel library not loaded — check your internet connection and refresh.");return;}
+  const wb=XLSX.utils.book_new();
+  const sheet=(name,rows)=>{const ws=XLSX.utils.aoa_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,name);};
+  // Products
+  sheet("Products",[["group","item","raw_cny_per_pc","hours_per_pc","qty_6mo","price_usd_per_pc"]]
+    .concat(state.products.map(p=>[p.group,p.item,p.raw,p.hours,p.qty,p.price==null?"":p.price])));
+  // Employees
+  sheet("Employees",[["name","position","type","current_salary_cny","basic_salary_cny","hours_per_month","production_worker"]]
+    .concat(state.employees.map(e=>[e.name,e.position,e.group,e.current,e.basic,e.hoursMonth,e.prod?"yes":"no"])));
+  // Investment Buckets
+  sheet("Investment Buckets",[["name","mode","value_cny","months","basis"]]
+    .concat(state.invest.buckets.map(b=>[b.name,b.mode,b.value,b.months,b.basis])));
+  // Fixed Costs
+  sheet("Fixed Costs",[["item","monthly_cny"],
+    ["rent",state.costs.rentMonthly],
+    ["electricity",state.costs.elecMonthly]]);
+  // Settings
+  sheet("Settings",[["setting","value"],
+    ["currency",state.ui.cur],
+    ["exchange_rate",state.ui.rate],
+    ["months",state.ui.months],
+    ["language",state.ui.lang],
+    ["monthly_sales_target_cny",state.sales.value],
+    ["sales_flex_pct",state.sales.flex],
+    ["total_investment_cny",state.invest.total],
+    ["salary_model",state.salary.model],
+    ["basic_pct",state.salary.basicPct],
+    ["S0",state.salary.S0],
+    ["target",state.salary.target],
+    ["accel",state.salary.accel],
+    ["dLinear",state.salary.dLinear],
+    ["dPool",state.salary.dPool]]);
+  XLSX.writeFile(wb,"red-dragon-factory-"+new Date().toISOString().slice(0,10)+".xlsx");
+}
+$("xlsxFile").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  if(typeof XLSX==="undefined"){alert("Excel library not loaded — check your internet connection and refresh.");e.target.value="";return;}
+  const r=new FileReader();
+  r.onload=ev=>{ try{
+    const wb=XLSX.read(ev.target.result,{type:"array"});
+    const rowsOf=name=>wb.SheetNames.includes(name)?XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,defval:""}):null;
+    const counts=[];
+    // Products
+    const P=rowsOf("Products");
+    if(P&&P.length>1){
+      const prods=P.slice(1).filter(r=>r.length>=2&&String(r[0]||"").trim()).map(r=>({
+        id:uid("p"),group:String(r[0]||""),item:String(r[1]||""),
+        raw:parseFloat(r[2])||0,hours:parseFloat(r[3])||0,qty:parseFloat(r[4])||0,
+        price:(r[5]===""||r[5]==null)?null:parseFloat(r[5])}));
+      if(prods.length){state.products=prods;counts.push(prods.length+" products");}
+    }
+    // Employees
+    const E=rowsOf("Employees");
+    if(E&&E.length>1){
+      const emps=E.slice(1).filter(r=>r.length>=2&&String(r[0]||"").trim()).map(r=>{
+        const prodStr=String(r[6]||"").toLowerCase().trim();
+        return {id:uid("e"),name:String(r[0]||""),position:String(r[1]||""),group:String(r[2]||"Employee"),
+          current:parseFloat(r[3])||0,basic:parseFloat(r[4])||0,hoursMonth:parseFloat(r[5])||0,
+          prod:prodStr==="yes"||prodStr==="y"||prodStr==="true"||prodStr==="1"};
+      });
+      if(emps.length){state.employees=emps;counts.push(emps.length+" employees");}
+    }
+    // Investment Buckets
+    const B=rowsOf("Investment Buckets");
+    if(B&&B.length>1){
+      const bks=B.slice(1).filter(r=>r.length>=2&&String(r[0]||"").trim()).map(r=>({
+        id:uid("b"),name:String(r[0]||""),mode:String(r[1]||"fixed"),
+        value:parseFloat(r[2])||0,months:parseFloat(r[3])||0,basis:String(r[4]||"none")}));
+      if(bks.length){state.invest.buckets=bks;counts.push(bks.length+" buckets");}
+    }
+    // Fixed Costs
+    const FC=rowsOf("Fixed Costs");
+    if(FC&&FC.length>1){
+      for(const row of FC.slice(1)){
+        const k=String(row[0]||"").toLowerCase().trim(), v=parseFloat(row[1]);
+        if(!isFinite(v)) continue;
+        if(k==="rent") state.costs.rentMonthly=v;
+        else if(k==="electricity"||k==="elec") state.costs.elecMonthly=v;
+      }
+      counts.push("fixed costs");
+    }
+    // Settings
+    const S=rowsOf("Settings");
+    if(S&&S.length>1){
+      const m={};
+      for(const row of S.slice(1)){
+        const k=String(row[0]||"").toLowerCase().trim(); if(k) m[k]=row[1];
+      }
+      const num=k=>m[k]!=null&&m[k]!==""?parseFloat(m[k]):null;
+      const str=k=>m[k]!=null&&m[k]!==""?String(m[k]):null;
+      if(str("currency")) state.ui.cur=str("currency").toUpperCase();
+      if(num("exchange_rate")!=null) state.ui.rate=num("exchange_rate");
+      if(num("months")!=null) state.ui.months=Math.round(num("months"));
+      if(str("language")) state.ui.lang=str("language").toLowerCase();
+      if(num("monthly_sales_target_cny")!=null) state.sales.value=num("monthly_sales_target_cny");
+      if(num("sales_flex_pct")!=null) state.sales.flex=num("sales_flex_pct");
+      if(num("total_investment_cny")!=null) state.invest.total=num("total_investment_cny");
+      if(str("salary_model")) state.salary.model=str("salary_model");
+      if(num("basic_pct")!=null) state.salary.basicPct=num("basic_pct");
+      if(num("s0")!=null) state.salary.S0=num("s0");
+      if(num("target")!=null) state.salary.target=num("target");
+      if(num("accel")!=null) state.salary.accel=num("accel");
+      if(num("dlinear")!=null) state.salary.dLinear=num("dlinear");
+      if(num("dpool")!=null) state.salary.dPool=num("dpool");
+      counts.push("settings");
+    }
+    if(!counts.length){alert("No recognized sheets found. Expected sheet names: Products, Employees, Investment Buckets, Fixed Costs, Settings.");return;}
+    UID=999; fullRender();
+    alert("Excel imported: "+counts.join(", ")+".");
+  }catch(err){alert("Excel error: "+err.message);} };
+  r.readAsArrayBuffer(f); e.target.value="";
+});
+
+/* ============================ INIT ============================ */
+applyStaticI18n();
+fullRender();
+</script>
+</body>
+</html>

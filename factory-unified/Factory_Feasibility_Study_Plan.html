@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Factory Feasibility Study — Unified System Plan</title>
+<style>
+body { font-family: Calibri, Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; color: #333; line-height: 1.6; }
+h1 { color: #1a1a1a; border-bottom: 3px solid #c00000; padding-bottom: 10px; }
+h2 { color: #c00000; margin-top: 32px; border-bottom: 1px solid #ddd; padding-bottom: 6px; }
+h3 { color: #444; margin-top: 24px; }
+table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+th { background: #f2f2f2; font-weight: bold; }
+.code { background: #f5f5f5; padding: 2px 6px; font-family: Consolas, monospace; font-size: 13px; }
+.highlight { background: #fff3cd; padding: 2px 4px; }
+ul { margin: 8px 0; }
+li { margin: 4px 0; }
+.footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #c00000; font-size: 12px; color: #666; }
+</style>
+</head>
+<body>
+
+<h1>Red Dragon Factory — Unified Feasibility Study System</h1>
+<p><strong>Plan Document</strong> &nbsp;|&nbsp; Created: June 3, 2026 &nbsp;|&nbsp; Status: Approved by User</p>
+
+<h2>1. Goal</h2>
+<p>Combine the best features from all three existing projects into <strong>one unified system</strong> that covers investment planning, sales-driven production planning, product catalog management, labor capacity analysis, salary model comparison, and profitability decisions.</p>
+
+<h2>2. Architecture</h2>
+<p><strong>Multi-file modular setup</strong> using vanilla JavaScript ES modules. No build step. No framework.</p>
+
+<table>
+<tr><th>File</th><th>Purpose</th></tr>
+<tr><td><span class="code">index.html</span></td><td>Entry point (open with Live Server)</td></tr>
+<tr><td><span class="code">css/styles.css</span></td><td>Complete dark-theme design system</td></tr>
+<tr><td><span class="code">js/data.js</span></td><td>60 products, 11 employees, default state</td></tr>
+<tr><td><span class="code">js/i18n.js</span></td><td>All UI text in English + 中文</td></tr>
+<tr><td><span class="code">js/engine.js</span></td><td>Pure math: production plan, payroll, profit</td></tr>
+<tr><td><span class="code">js/state.js</span></td><td>State management, localStorage, JSON/Excel I/O</td></tr>
+<tr><td><span class="code">js/ui.js</span></td><td>Shared helpers: formatting, DOM builders</td></tr>
+<tr><td><span class="code">js/charts.js</span></td><td>Chart.js wrappers (donut, bar, line)</td></tr>
+<tr><td><span class="code">js/tabs/*.js</span></td><td>One file per tab (7 tabs)</td></tr>
+<tr><td><span class="code">js/app.js</span></td><td>Main controller, header, rail, events</td></tr>
+</table>
+
+<p><strong>Tech stack:</strong> Plain ES modules. Chart.js and SheetJS loaded from CDN. Requires a local web server (VS Code Live Server or python -m http.server).</p>
+
+<h2>3. The 7 Tabs</h2>
+
+<h3>Tab 0 — Overview</h3>
+<ul>
+<li>4 Hero KPI cards: Monthly Sales, Material Cost, Payroll, Net Profit (color-coded)</li>
+<li>Scenario table: Worst / Base / Best columns showing Sales, Material, Payroll per model, Net, Margin %</li>
+<li>Accuracy check: Reconciles to documented 6-month actuals — <strong>¥2,017,193 sales · ¥1,031,503 material · ¥399,152 net</strong></li>
+<li>Quick actions: Reconcile to base · Reset · Export · Import</li>
+</ul>
+
+<h3>Tab 1 — Investment & Allocation</h3>
+<ul>
+<li>Total Investment input with <strong>Auto-calculate toggle</strong></li>
+<li>Auto formula: <span class="code">rent×3 + electric×3 + payroll×3 + ¥200k + ¥100k + ¥100k</span></li>
+<li>Editable allocation buckets (Fixed or Months × Basis)</li>
+<li>Chart.js donut chart for budget breakdown</li>
+<li>Summary: Total needs · Surplus/Shortfall · Reserve cash · Burn at zero · Runway</li>
+<li>Verdict: "ENOUGH TO START" or "NOT ENOUGH YET"</li>
+</ul>
+
+<h3>Tab 2 — Sales → Production Plan</h3>
+<ul>
+<li>Sales control rail: slider + big number + Worst/Base/Best presets</li>
+<li>Flex ±% to adjust scenario range</li>
+<li>Production table: Group/Item · Mix % · Qty to produce · Revenue · Material · Labor hours</li>
+<li>Quantities scale from historical 6-month revenue mix</li>
+<li>Chart.js bar chart: Revenue by group</li>
+</ul>
+
+<h3>Tab 3 — Products & Data</h3>
+<ul>
+<li>9 Group summary cards with items count, produced count, annual sales, missing prices</li>
+<li>Per-group editable tables: Raw cost · Labor hours · Annual qty · Price USD · Price CNY · Annual revenue</li>
+<li>Red flags on missing prices for items with qty > 0</li>
+<li>Add item · CSV template · CSV import · "Only produced" filter</li>
+</ul>
+
+<h3>Tab 4 — Labor Capacity</h3>
+<ul>
+<li>Inputs: Hours/day · Days/month</li>
+<li>KPIs: Utilization % · Shortfall/Headroom · Capacity ceiling</li>
+<li>Workforce table: Name · Position · Type · Basic salary · Hours/mo</li>
+<li>Chart.js stacked bar: Utilized / Overtime / Available</li>
+<li>Verdict: "ADEQUATE" / "TIGHT" / "INSUFFICIENT"</li>
+</ul>
+
+<h3>Tab 5 — Salary Model Lab (Centerpiece)</h3>
+<ul>
+<li>5 Model tabs: <strong>0·Fixed | A·Profit-share | B·Stepped | C·Commission | D·Custom</strong></li>
+<li>Dynamic model description</li>
+<li>Tune: Basic % · Reference sales S₀ · Accelerator target & multiplier · Custom weights</li>
+<li>Editable roster: Name · Position · Group · Current · Basic (floor) · Hours/mo · Calculated pay</li>
+<li>Owner View: Side-by-side model comparison + payroll-vs-sales line chart</li>
+<li>Employee View: Today vs New · Delta · <strong>"Sales to match today's pay"</strong> per person</li>
+</ul>
+
+<h3>Tab 6 — Costs & Decision</h3>
+<ul>
+<li>Fixed cost inputs: Rent/mo · Electricity/mo</li>
+<li>Chart.js donut: Materials · Salaries · Rent · Electricity</li>
+<li>Profit waterfall: Sales → −Material → −Payroll → −Rent/Elec = Net</li>
+<li>Projection: Net × months</li>
+<li>Two verdicts: "PROFITABLE?" + "INVESTMENT ENOUGH?"</li>
+<li>Ground-truth 6-month reconciliation</li>
+</ul>
+
+<h2>4. Global Controls</h2>
+<ul>
+<li><strong>Sticky Header:</strong> Brand · Language (EN/中文) · Currency (CNY/USD) · Exchange rate · Months · Buttons · Saved dot</li>
+<li><strong>Sticky Rail:</strong> Scenario buttons · Sales slider · Sales number · Base monthly · Flex %</li>
+</ul>
+
+<h2>5. The 5 Salary Models (Formulas)</h2>
+
+<table>
+<tr><th>Model</th><th>Name</th><th>Formula</th></tr>
+<tr><td><strong>M0</strong></td><td>Fixed</td><td><span class="code">pay = current salary</span> (baseline)</td></tr>
+<tr><td><strong>A</strong></td><td>Profit-share</td><td><span class="code">pay = basic + (current−basic) × (sales/S₀) × accel</span></td></tr>
+<tr><td><strong>B</strong></td><td>Stepped</td><td><span class="code">pay = basic + (current−basic) × tierMultiplier</span> — jumps at sales thresholds</td></tr>
+<tr><td><strong>C</strong></td><td>Commission</td><td><span class="code">pay = basic + commissionPool × (gap/totalGap)</span></td></tr>
+<tr><td><strong>D</strong></td><td>Custom</td><td>Blend of A + C with adjustable weights</td></tr>
+</table>
+
+<p>All models <strong>floor at basic salary</strong>. At <span class="code">sales = S₀</span>, every variable model ≈ today's salary.</p>
+
+<h2>6. Import / Export / Persistence</h2>
+<ul>
+<li><strong>Auto-save:</strong> localStorage (400ms debounce)</li>
+<li><strong>JSON:</strong> Export / Import full state</li>
+<li><strong>Excel (SheetJS):</strong> 5 sheets — Products · Employees · Buckets · Fixed Costs · Settings</li>
+<li><strong>CSV:</strong> Template export + bulk product import</li>
+<li><strong>Reset:</strong> Wipes localStorage, restores factory defaults</li>
+</ul>
+
+<h2>7. Data Model</h2>
+<pre style="background:#f5f5f5;padding:12px;border-radius:4px;">
+State
+├── ui         → lang, cur, rate(7.0), months(6)
+├── sales      → value, flex(35)
+├── products   → 60 items {id, group, item, raw, hours, qty, price}
+├── employees  → 11 people {id, name, position, group, current, basic, hoursMonth, prod}
+├── labor      → hoursDay(8), daysMonth(26)
+├── costs      → rentMonthly(15417), elecMonthly(5000)
+├── salary     → model, basicPct(60), S0, target, accel, stepTiers, commMul, dLinear, dPool
+└── invest     → total, auto, buckets[7]
+</pre>
+
+<h2>8. Comparison with Existing Projects</h2>
+
+<table>
+<tr><th>Feature</th><th>Proj 1</th><th>Proj 2</th><th>Proj 3</th><th><strong>Unified</strong></th></tr>
+<tr><td>5 salary models</td><td>✅</td><td>❌ (4)</td><td>✅</td><td>✅</td></tr>
+<tr><td>Excel import/export</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>Auto-investment calc</td><td>❌</td><td>✅</td><td>❌</td><td>✅</td></tr>
+<tr><td>Overview + accuracy check</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+<tr><td>Add/remove items & people</td><td>✅</td><td>❌</td><td>✅</td><td>✅</td></tr>
+<tr><td>Chart.js charts</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Employee breakeven sales</td><td>✅</td><td>❌</td><td>✅</td><td>✅</td></tr>
+<tr><td>Maintainable multi-file</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+</table>
+
+<h2>9. User Flow</h2>
+<ol>
+<li>Open page → data loads from localStorage or seeds from 6-month actuals</li>
+<li>Check Overview → confirms accuracy against real numbers</li>
+<li>Go to Investment → enter total (or Auto ON) → see runway</li>
+<li>Slide sales target → all tabs update: quantities, materials, hours, payroll, profit</li>
+<li>Go to Salary Lab → pick model → tune parameters → see every person's new pay</li>
+<li>Go to Costs & Decision → read the two verdicts</li>
+<li>Export to Excel → edit → import back</li>
+</ol>
+
+<h2>10. Open Item — Salary Model Update</h2>
+<p class="highlight">The user wants to review and potentially modify the 5 salary models before final implementation. This section will be updated after user input.</p>
+
+<div class="footer">
+<p><strong>Red Dragon Factory — Feasibility Study System Plan</strong></p>
+<p>Document created by Kimi Code CLI | June 3, 2026</p>
+<p>To open this file in Microsoft Word: Right-click → Open with → Microsoft Word. Then Save As → .docx</p>
+</div>
+
+</body>
+</html>
