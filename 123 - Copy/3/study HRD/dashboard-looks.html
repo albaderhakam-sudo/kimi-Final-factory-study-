@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Red Dragon Factory — Dashboard Looks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; }
+  * { box-sizing: border-box; }
+
+  /* ============ LOOK 1 · LEDGER (light, warm, serif) ============ */
+  .l1 { font-family: 'IBM Plex Sans', sans-serif; background: #F4F1E9; color: #211f1a; width: 100%; height: 100%; padding: 38px 44px; --emer: #1F6F54; --rule: #d7d0c0; --muted: #7c766a; }
+  .l1 .num { font-family: 'IBM Plex Mono', monospace; font-feature-settings: "tnum"; }
+  .l1 .topbar { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #211f1a; padding-bottom: 16px; }
+  .l1 .brand { font-family: 'Newsreader', serif; font-size: 30px; font-weight: 600; letter-spacing: -0.01em; line-height: 1; }
+  .l1 .brand small { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-top: 8px; font-weight: 500; }
+  .l1 .seg { display: flex; gap: 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+  .l1 .seg button { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 7px 13px; border: 0; background: #fff; color: var(--muted); cursor: pointer; border-right: 1px solid var(--rule); }
+  .l1 .seg button:last-child { border-right: 0; }
+  .l1 .seg button.on { background: var(--emer); color: #fff; }
+  .l1 .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 26px; border-bottom: 1px solid var(--rule); }
+  .l1 .kpi { padding: 4px 22px 22px 0; border-right: 1px solid var(--rule); }
+  .l1 .kpi:last-child { border-right: 0; padding-right: 0; }
+  .l1 .kpi .lab { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .l1 .kpi .val { font-family: 'Newsreader', serif; font-size: 33px; font-weight: 500; margin-top: 10px; letter-spacing: -0.01em; }
+  .l1 .kpi .val.pos { color: var(--emer); }
+  .l1 .kpi .sub { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .l1 .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 38px; margin-top: 30px; }
+  .l1 .sechd { font-family: 'Newsreader', serif; font-size: 19px; font-weight: 600; }
+  .l1 .secsub { font-size: 12px; color: var(--muted); margin: 4px 0 18px; }
+  .l1 .track { position: relative; height: 4px; background: var(--rule); border-radius: 2px; margin: 30px 0 8px; }
+  .l1 .track .fill { position: absolute; left: 0; height: 100%; width: 50%; background: var(--emer); border-radius: 2px; }
+  .l1 .track .knob { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; background: #fff; border: 2px solid var(--emer); border-radius: 50%; transform: translate(-50%,-50%); }
+  .l1 .track .tick { position: absolute; top: -26px; transform: translateX(-50%); font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); text-align: center; }
+  .l1 .track .tick b { display: block; color: #211f1a; font-size: 11px; }
+  .l1 .track .tick.base b { color: var(--emer); }
+  .l1 table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+  .l1 th { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 0 0 8px; border-bottom: 1px solid var(--rule); font-weight: 500; }
+  .l1 th:first-child { text-align: left; }
+  .l1 td { padding: 9px 0; border-bottom: 1px solid #e7e1d3; font-size: 13px; text-align: right; }
+  .l1 td:first-child { text-align: left; font-weight: 500; }
+  .l1 .grp { font-size: 10px; color: var(--muted); font-weight: 400; }
+  .l1 .payrow { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .l1 .payrow .who { width: 92px; font-size: 13px; font-weight: 500; }
+  .l1 .payrow .who small { display: block; color: var(--muted); font-size: 10px; font-weight: 400; }
+  .l1 .bars { flex: 1; }
+  .l1 .bar { height: 13px; border-radius: 2px; display: flex; align-items: center; padding-left: 8px; color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: 10px; margin-bottom: 4px; }
+  .l1 .bar.today { background: #c9c1ad; color: #4a4537; }
+  .l1 .bar.new { background: var(--emer); }
+  .l1 .chips { display: flex; gap: 7px; margin-bottom: 18px; flex-wrap: wrap; }
+  .l1 .chip { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; padding: 5px 11px; border: 1px solid var(--rule); border-radius: 2px; color: var(--muted); }
+  .l1 .chip.on { background: #211f1a; color: #fff; border-color: #211f1a; }
+
+  /* ============ LOOK 2 · CONTROL ROOM (dark, technical) ============ */
+  .l2 { font-family: 'IBM Plex Sans', sans-serif; background: #15160F; color: #e7e6dd; width: 100%; height: 100%; padding: 34px 40px; --emer: #34b07a; --emd: #1f6b4c; --panel: #1d1e16; --line: #2e3026; --muted: #8f8f80; background-image: radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 22px 22px; }
+  .l2 .num { font-family: 'IBM Plex Mono', monospace; font-feature-settings: "tnum"; }
+  .l2 .topbar { display: flex; justify-content: space-between; align-items: center; }
+  .l2 .brand { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.02em; display: flex; align-items: center; gap: 11px; }
+  .l2 .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--emer); box-shadow: 0 0 11px var(--emer); }
+  .l2 .brand small { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--muted); font-weight: 400; }
+  .l2 .seg { display: flex; gap: 6px; }
+  .l2 .seg button { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 7px 13px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); cursor: pointer; border-radius: 6px; }
+  .l2 .seg button.on { background: var(--emd); color: #fff; border-color: var(--emer); }
+  .l2 .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 22px; }
+  .l2 .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; position: relative; overflow: hidden; }
+  .l2 .kpi::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--emer); opacity: 0.5; }
+  .l2 .kpi .lab { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .l2 .kpi .val { font-family: 'Space Grotesk', sans-serif; font-size: 29px; font-weight: 600; margin-top: 9px; }
+  .l2 .kpi .val.pos { color: var(--emer); }
+  .l2 .kpi .sub { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+  .l2 .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-top: 14px; }
+  .l2 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; }
+  .l2 .sechd { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600; }
+  .l2 .secsub { font-size: 11.5px; color: var(--muted); margin: 3px 0 16px; }
+  .l2 .track { position: relative; height: 6px; background: #0e0f0a; border: 1px solid var(--line); border-radius: 3px; margin: 32px 0 10px; }
+  .l2 .track .fill { position: absolute; left: 0; height: 100%; width: 50%; background: linear-gradient(90deg, var(--emd), var(--emer)); border-radius: 3px; }
+  .l2 .track .knob { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; background: var(--emer); border-radius: 50%; transform: translate(-50%,-50%); box-shadow: 0 0 10px var(--emer); }
+  .l2 .track .tick { position: absolute; top: -27px; transform: translateX(-50%); font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; color: var(--muted); text-align: center; }
+  .l2 .track .tick b { display: block; color: #e7e6dd; font-size: 11px; }
+  .l2 .track .tick.base b { color: var(--emer); }
+  .l2 table { width: 100%; border-collapse: collapse; margin-top: 22px; }
+  .l2 th { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 0 0 9px; border-bottom: 1px solid var(--line); font-weight: 500; }
+  .l2 th:first-child { text-align: left; }
+  .l2 td { padding: 9px 0; border-bottom: 1px solid #23241b; font-size: 13px; text-align: right; }
+  .l2 td:first-child { text-align: left; font-weight: 500; }
+  .l2 .grp { font-size: 9.5px; color: var(--muted); }
+  .l2 .chips { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+  .l2 .chip { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); }
+  .l2 .chip.on { background: var(--emd); color: #fff; border-color: var(--emer); }
+  .l2 .payrow { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+  .l2 .payrow .who { width: 88px; font-size: 12.5px; font-weight: 500; }
+  .l2 .payrow .who small { display: block; color: var(--muted); font-size: 9.5px; font-weight: 400; }
+  .l2 .bars { flex: 1; }
+  .l2 .bar { height: 13px; border-radius: 3px; display: flex; align-items: center; padding-left: 8px; color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: 10px; margin-bottom: 4px; }
+  .l2 .bar.today { background: #3a3c30; color: #b9b8aa; }
+  .l2 .bar.new { background: linear-gradient(90deg, var(--emd), var(--emer)); }
+
+  /* ============ LOOK 3 · WORKSHOP (structural, grotesk, brass) ============ */
+  .l3 { font-family: 'IBM Plex Sans', sans-serif; background: #EAE5D9; color: #1a1813; width: 100%; height: 100%; padding: 0; --emer: #1F6F54; --brass: #b1801f; --card: #FBF9F3; --line: #1a1813; --muted: #6f6857; }
+  .l3 .num { font-family: 'IBM Plex Mono', monospace; font-feature-settings: "tnum"; }
+  .l3 .topbar { background: #1a1813; color: #EAE5D9; display: flex; justify-content: space-between; align-items: center; padding: 22px 40px; }
+  .l3 .brand { font-family: 'Space Grotesk', sans-serif; font-size: 23px; font-weight: 700; letter-spacing: -0.01em; }
+  .l3 .brand span { color: var(--emer); }
+  .l3 .brand small { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.24em; color: #9b9485; margin-top: 4px; font-weight: 400; }
+  .l3 .seg { display: flex; gap: 0; border: 1px solid #4a463c; }
+  .l3 .seg button { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; padding: 7px 12px; border: 0; background: transparent; color: #9b9485; cursor: pointer; border-right: 1px solid #4a463c; }
+  .l3 .seg button:last-child { border-right: 0; }
+  .l3 .seg button.on { background: var(--emer); color: #fff; }
+  .l3 .body { padding: 30px 40px 40px; }
+  .l3 .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .l3 .kpi { background: var(--card); border: 1.5px solid var(--line); padding: 16px 18px; }
+  .l3 .kpi .lab { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; }
+  .l3 .kpi .val { font-family: 'Space Grotesk', sans-serif; font-size: 31px; font-weight: 700; margin-top: 10px; letter-spacing: -0.02em; }
+  .l3 .kpi .val.pos { color: var(--emer); }
+  .l3 .kpi.accent { background: var(--emer); border-color: var(--emer); color: #fff; }
+  .l3 .kpi.accent .lab, .l3 .kpi.accent .val { color: #fff; }
+  .l3 .kpi .sub { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+  .l3 .kpi.accent .sub { color: rgba(255,255,255,0.8); }
+  .l3 .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; margin-top: 16px; }
+  .l3 .card { background: var(--card); border: 1.5px solid var(--line); padding: 22px 24px; }
+  .l3 .sechd { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 9px; }
+  .l3 .tag { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--line); color: var(--card); padding: 3px 7px; }
+  .l3 .secsub { font-size: 11.5px; color: var(--muted); margin: 5px 0 18px; }
+  .l3 .track { position: relative; height: 8px; background: #ded7c6; border: 1.5px solid var(--line); margin: 34px 0 10px; }
+  .l3 .track .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: var(--emer); }
+  .l3 .track .knob { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; background: var(--brass); border: 1.5px solid var(--line); transform: translate(-50%,-50%); }
+  .l3 .track .tick { position: absolute; top: -28px; transform: translateX(-50%); font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; color: var(--muted); text-align: center; }
+  .l3 .track .tick b { display: block; color: #1a1813; font-size: 11px; }
+  .l3 .track .tick.base b { color: var(--emer); }
+  .l3 table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+  .l3 th { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 0 0 9px; border-bottom: 1.5px solid var(--line); font-weight: 500; }
+  .l3 th:first-child { text-align: left; }
+  .l3 td { padding: 9px 0; border-bottom: 1px solid #ddd6c5; font-size: 13px; text-align: right; }
+  .l3 td:first-child { text-align: left; font-weight: 600; }
+  .l3 .grp { font-size: 9.5px; color: var(--muted); font-weight: 400; }
+  .l3 .chips { display: flex; gap: 0; margin-bottom: 20px; border: 1.5px solid var(--line); width: fit-content; }
+  .l3 .chip { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 6px 11px; color: var(--muted); border-right: 1.5px solid var(--line); }
+  .l3 .chip:last-child { border-right: 0; }
+  .l3 .chip.on { background: var(--line); color: var(--card); }
+  .l3 .payrow { display: flex; align-items: center; gap: 13px; margin-bottom: 16px; }
+  .l3 .payrow .who { width: 90px; font-size: 12.5px; font-weight: 600; }
+  .l3 .payrow .who small { display: block; color: var(--muted); font-size: 9.5px; font-weight: 400; }
+  .l3 .bars { flex: 1; }
+  .l3 .bar { height: 14px; display: flex; align-items: center; padding-left: 8px; color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: 10px; margin-bottom: 4px; border: 1.5px solid var(--line); }
+  .l3 .bar.today { background: #d3ccba; color: #4a4537; }
+  .l3 .bar.new { background: var(--emer); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="looks-content.jsx"></script>
+<script type="text/babel">
+  const { useState } = React;
+  function App() {
+    return (
+      <DesignCanvas>
+        <DCSection id="dash" title="Red Dragon Factory · Dashboard Looks" subtitle="Same real data (base sales ¥336,199/mo · ±50% flex), three visual systems. Pick one — or mix elements — and I'll build the full working tool in it.">
+          <DCArtboard id="ledger" label="A · Ledger — light, warm, serif (banker-calm)" width={1180} height={840}>
+            <LookLedger />
+          </DCArtboard>
+          <DCArtboard id="control" label="B · Control Room — dark, technical, data-dense" width={1180} height={840}>
+            <LookControl />
+          </DCArtboard>
+          <DCArtboard id="workshop" label="C · Workshop — structural, bold grotesk, brass + emerald" width={1180} height={840}>
+            <LookWorkshop />
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

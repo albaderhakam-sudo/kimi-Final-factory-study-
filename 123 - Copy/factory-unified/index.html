@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red Dragon Factory — Feasibility Studio</title>
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<header class="app">
+  <div class="hbar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <div class="ttl" id="brandTitle">Red Dragon Factory</div>
+        <div class="sub" id="brandSub">Investment · Production · Salary Studio</div>
+      </div>
+    </div>
+    <div class="hctrl">
+      <div class="seg" id="langSeg" title="Language / 语言">
+        <button data-act="lang" data-v="en">EN</button>
+        <button data-act="lang" data-v="zh">中文</button>
+        <button data-act="lang" data-v="both">双语</button>
+      </div>
+      <div class="seg" id="curSeg" title="Display currency">
+        <button data-act="cur" data-v="CNY">CNY ¥</button>
+        <button data-act="cur" data-v="USD">USD $</button>
+      </div>
+      <div class="seg" id="viewSeg" title="View period">
+        <button data-act="view" data-v="monthly">Monthly</button>
+        <button data-act="view" data-v="yearly">Yearly</button>
+      </div>
+      <div title="USD→CNY exchange rate"><span class="help">Rate</span> <input type="number" id="rate" class="num-sm" step="0.05"></div>
+      <div title="Projection months"><span class="help">Months</span> <input type="number" id="months" class="num-sm" step="1" min="1" max="36"></div>
+      <button data-act="reconcile" title="Set to historical 6-month actuals">Reconcile</button>
+      <button data-act="export">Export</button>
+      <button data-act="import">Import</button>
+      <button data-act="xlsxExport" title="Download all editable data as one Excel workbook">Excel ↓</button>
+      <button data-act="xlsxImport" title="Import an edited Excel workbook back into the dashboard">Excel ↑</button>
+      <button data-act="print">Print / PDF</button>
+      <button data-act="reset" title="Restore all defaults">Reset</button>
+      <span class="savedot"><b id="savedDot"></b><span>saved</span></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- CONTROL RAIL -->
+  <div class="rail noprint">
+    <div class="scn">
+      <label class="lbl">Scenario</label>
+      <div class="seg" id="scnSeg">
+        <button data-act="scn" data-v="worst">Worst</button>
+        <button data-act="scn" data-v="base">Base</button>
+        <button data-act="scn" data-v="best">Best</button>
+      </div>
+      <div style="margin-top:6px"><span class="help">Flex ±</span> <input type="number" id="flex" class="num-sm" step="1" min="0" max="90">%</div>
+    </div>
+    <div class="slidewrap">
+      <div class="slidetop">
+        <label class="lbl" style="margin:0">Monthly sales target</label>
+        <div class="salesbig" id="salesBig">—</div>
+        <input type="number" id="salesBox" step="1000">
+        <div class="vs" id="salesVs"></div>
+      </div>
+      <input type="range" id="salesSlider" min="0" max="1000000" step="1000">
+      <div class="tick" id="salesTicks"></div>
+    </div>
+    <div style="text-align:right">
+      <label class="lbl">Base monthly</label>
+      <div class="bl" id="baseMonthly" style="font-size:17px;font-weight:700"></div>
+      <div class="help">last 6-mo ÷ 6</div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="tabs noprint">
+    <a href="#" data-act="tab" data-v="overview">0 · Overview</a>
+    <a href="#" data-act="tab" data-v="investment">1 · Investment</a>
+    <a href="#" data-act="tab" data-v="production">2 · Production</a>
+    <a href="#" data-act="tab" data-v="products">3 · Products</a>
+    <a href="#" data-act="tab" data-v="labor">4 · Labor</a>
+    <a href="#" data-act="tab" data-v="salary">5 · Salary Lab</a>
+    <a href="#" data-act="tab" data-v="costs">6 · Costs & Decision</a>
+  </nav>
+
+  <!-- KPIs -->
+  <div class="g4 grid" id="kpis"></div>
+
+  <!-- TAB CONTENT -->
+  <div id="tab-content"></div>
+
+  <div class="foot"><span id="footerText">Red Dragon Factory studio · all figures editable · auto-saved to this browser · </span><span id="stamp"></span></div>
+</div>
+
+<input type="file" id="fileImport" accept="application/json" style="display:none">
+<input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
+<input type="file" id="xlsxFile" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none">
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
